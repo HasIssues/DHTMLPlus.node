@@ -34,7 +34,7 @@ http.createServer(function (req, res) {
     }
     //-- process redirect
     var processed = false;
-    if (settings.config[machineName].redirect[domain] != null) {
+    if (settings.config[machineName].redirect != null) {
         if (subDomain == settings.config[machineName].redirect[domain][0]) {
             var redirectTO = settings.config[machineName].redirect[domain][2] + "." + domain;
             console.log("Redirect to " + redirectTO);
@@ -44,7 +44,7 @@ http.createServer(function (req, res) {
         }
     }
     //-- process request
-    if (settings.config[machineName].endpoint[domain] != null) {
+    if (settings.config[machineName].endpoint != null) {
         if (subDomain == settings.config[machineName].endpoint[domain][0]) {
             console.log("Process " + requestHost);
             content.presenter(req, res);
