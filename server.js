@@ -48,7 +48,7 @@ http.createServer(function (req, res) {
     if (settings.config[machineName].endpoint != null) {
         if (subDomain == settings.config[machineName].endpoint[domain].subDomain) {
             console.log("Process " + requestMethod + " Request " + requestHost + requestURL);
-            content.presenter(req, res, domain);
+            content.presenter(req, res, domain, settings.config[machineName]);
             processed = true;
         }
     }
