@@ -9,10 +9,11 @@ var content = require('./presenter.js');
 
 //-- vars
 var machineName = os.hostname().toUpperCase();
-var fullDomain = settings.config[machineName].domian;
+//var fullDomain = settings.config[machineName].domian;
+var fullDomain = settings.config["AZURE"].domian;
 
 //-- SSL options
-var options = { pfx: fs.readFileSync('mddatacor.org.pfx'), passphrase: 'ThisIsAPassword' };
+//var options = { pfx: fs.readFileSync('hasissues.com.pfx'), passphrase: 'ThisIsAPassword' };
 
 //-- HTTPS Server
 //https.createServer(options, function (req, res) {

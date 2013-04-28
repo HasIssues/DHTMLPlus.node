@@ -6,7 +6,7 @@ exports.config = {
 			deployon: "02/06/2010 18:00"
 		},
 		settings: {
-			endpoint: ["https://www.hasissues.com:80"],
+			endpoint: ["http://www.hasissues.com:80"],
 			redirect: ["http://hasissues.com:80"]
 		},
 		config: [
@@ -16,5 +16,17 @@ exports.config = {
 	},
 	"AZURE":
 	{
+		domian: "hasissues.azurewebsites.net",
+		deployment: {
+			revision: "HEAD",
+			deployon: "02/06/2010 18:00"
+		},
+		settings: {
+			endpoint: ["http://hasissues.azurewebsites.net:80"],
+		},
+		config: [
+			{ key: "templateType", value: "dir" },
+			{ key: "templatesPath", value: "sites" },
+		]
 	}
 };
