@@ -19,25 +19,26 @@ if (machineName != "BUILDINTHECLOUD") {
 //-- HTTP Server for redirect
 http.createServer(function (req, res) {
     console.log("\nREQUEST");
-    var requestHost = req.headers.host.toLowerCase();
+    var requestHost = req.headers.host.toLowerCase(); 
     var requestReferer = req.headers.referer;
-    var requestURL = req.headers.url;
-    var requestMethod = req.headers.method;
+    var requestHttpVersion = req.httpVersion;
+    var requestURL = req.url;
+    var requestMethod = req.method;
     var domain = "";
     var subDomain = "";
     var requestHostArray = requestHost.split(".");
     if (requestHostArray.length == 2) {
-        domain = requestHostArray[1] + "." + requestHostArray[2];
+        domain = requestHostArray[0] + "." + requestHostArray[1];
     } else {
-        domain = requestHostArray[1] + "." + requestHostArray[2];
+        domain = requestHostArray[requestHostArray.length - 2] + "." + requestHostArray[requestHostArray.length - 1];
         subDomain = requestHostArray[0];
     }
     //-- process redirect
     var processed = false;
     if (settings.config[machineName].redirect != null) {
-        if (subDomain == settings.config[machineName].redirect[domain][0]) {
-            var redirectTO = settings.config[machineName].redirect[domain][2] + "." + domain;
-            console.log("Redirect to " + redirectTO);
+        if (subDomain == settings.config[machineName].redirect[domain].subDomain) {
+            var redirectTO = settings.config[machineName].redirect[domain].directTo + "." + domain;
+            console.log("Redirect " + requestHost + " to " + redirectTO);
             res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
             res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
             processed = true;
@@ -45,9 +46,9 @@ http.createServer(function (req, res) {
     }
     //-- process request
     if (settings.config[machineName].endpoint != null) {
-        if (subDomain == settings.config[machineName].endpoint[domain][0]) {
-            console.log("Process " + requestHost);
-            content.presenter(req, res);
+        if (subDomain == settings.config[machineName].endpoint[domain].subDomain) {
+            console.log("Process " + requestMethod + " Request " + requestHost + requestURL);
+            content.presenter(req, res, domain);
             processed = true;
         }
     }
