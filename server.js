@@ -11,6 +11,7 @@ var content = require('./presenter.js');
 var machineName = os.hostname().toUpperCase();
 //var fullDomain = settings.config[machineName].domian;
 var fullDomain = settings.config["AZURE"].domian;
+var port = process.env.PORT || 1337;
 
 //-- SSL options
 //var options = { pfx: fs.readFileSync('hasissues.com.pfx'), passphrase: 'ThisIsAPassword' };
@@ -26,7 +27,7 @@ http.createServer(function (req, res) {
 	//res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'https://' + fullDomain + '/' });
 	//res.end('<a href="https://' + fullDomain + '/">Redirecting to Secure Site</a>');
 	//console.log('Redirect to 443');
-}).listen(80, fullDomain);
+}).listen(port);
 
 //-- Done
 console.log(fullDomain + ' Web Server running.');
