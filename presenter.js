@@ -1,4 +1,6 @@
 var template = require('./template-data-merge.js');
+var cheerio = require("cheerio");
+var azure = require('azure');
 
 exports.presenter = function (req, res, domain, settings) {
     var requestHost = req.headers.host.toLowerCase();
@@ -15,8 +17,12 @@ exports.presenter = function (req, res, domain, settings) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(sHTM);
     } else {
-        //template.templateDataMerge();
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end("No Content Found for " + domain + ".");
+        var response = template.templateDataMerge(req, domain, settings);
+        res.writeHead(response.statusCode, { 'Content-Type': response.contentType });
+        res.end(response.html);
     }
+};
+
+var getTemplate = function () {
+    
 };

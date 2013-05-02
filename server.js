@@ -2,18 +2,21 @@ var http = require('http');
 var https = require('https');
 var fs = require('fs');
 var os = require("os");
+var cheerio = require("cheerio");
+var azure = require('azure');
 
 //-- includes
 var settings = require('./config.js');
 var content = require('./presenter.js');
 
 //-- vars
+var configName = "LOCAL";
 var machineName = os.hostname().toUpperCase();
 var port = 80;
 
-//-- are we in azure
-if (machineName != "BUILDINTHECLOUD") {
-    machineName = "AZURE";
+//-- are we in Azure or IIS
+if (process.env.PORT != undefined) {
+    configName = "AZURE";
     port = process.env.PORT || 1337;
 }
 //-- HTTP Server for redirect
@@ -35,9 +38,9 @@ http.createServer(function (req, res) {
     }
     //-- process redirect
     var processed = false;
-    if (settings.config[machineName].redirect != null) {
-        if (subDomain == settings.config[machineName].redirect[domain].subDomain) {
-            var redirectTO = settings.config[machineName].redirect[domain].directTo + "." + domain;
+    if (settings.config[configName].redirect != null) {
+        if (subDomain == settings.config[configName].redirect[domain].subDomain) {
+            var redirectTO = settings.config[configName].redirect[domain].directTo + "." + domain;
             console.log("Redirect " + requestHost + " to " + redirectTO);
             res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
             res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
@@ -45,10 +48,10 @@ http.createServer(function (req, res) {
         }
     }
     //-- process request
-    if (settings.config[machineName].endpoint != null) {
-        if (subDomain == settings.config[machineName].endpoint[domain].subDomain) {
+    if (settings.config[configName].endpoint != null) {
+        if (subDomain == settings.config[configName].endpoint[domain].subDomain) {
             console.log("Process " + requestMethod + " Request " + requestHost + requestURL);
-            content.presenter(req, res, domain, settings.config[machineName]);
+            content.presenter(req, res, domain, settings.config[configName]);
             processed = true;
         }
     }
@@ -61,4 +64,4 @@ http.createServer(function (req, res) {
 }).listen(port);
 
 //-- Done
-console.log('Ready.');
+console.log(configName + " Config used and Listening on port " + port + ".");
