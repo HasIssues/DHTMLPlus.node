@@ -17,9 +17,7 @@ exports.presenter = function (req, res, domain, settings) {
 		res.writeHead(200, { 'Content-Type': 'text/html' });
 		res.end(sHTM);
 	} else {
-		var response = template.templateDataMerge(req, domain, settings);
-		res.writeHead(response.statusCode, { 'Content-Type': response.contentType });
-		res.end(response.html);
+		template.templateDataMerge(req, res, domain, settings);
 	}
 };
 
