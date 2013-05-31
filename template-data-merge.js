@@ -21,6 +21,7 @@ var load = function (domain, settings, isCloud) {
 	console.log(response);
 	console.log(path);
 	if (isCloud) {
+		var blobService = azure.createBlobService();
 		//-- load the template
 		blobService.getBlobToText(domain.replace(".", "-"), path.templateName, 
 			function (error, text, blockBlob) {
