@@ -13,13 +13,13 @@ var content = require('./presenter.js');
 var configName = "LOCAL";
 var machineName = os.hostname().toUpperCase();
 var port = 80;
-var isCloud = true; //-- change to true to run local against cloud resources
+var useCloudData = false; //-- change to true to run local against cloud resources
 
 //-- are we in Azure or IIS
 if (process.env.PORT != undefined) {
 	configName = "AZURE";
 	port = process.env.PORT || 1337;
-	isCloud = true;
+	useCloudData = true;
 }
 //-- HTTP Server for redirect
 http.createServer(function (req, res) {
@@ -53,7 +53,7 @@ http.createServer(function (req, res) {
 	if (settings.config[configName].endpoint != null) {
 		if (subDomain == settings.config[configName].endpoint[domain].subDomain) {
 			console.log("Process " + requestMethod + " Request " + requestHost + requestURL);
-			content.presenter(req, res, domain, settings.config[configName], isCloud);
+			content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
 			processed = true;
 		}
 	}

@@ -2,7 +2,7 @@ var template = require('./template-data-merge.js');
 var cheerio = require("cheerio");
 var azure = require('azure');
 
-exports.presenter = function (req, res, domain, settings, isCloud) {
+exports.presenter = function (req, res, domain, settings, useCloudData, configName) {
 	var requestHost = req.headers.host.toLowerCase();
 	var requestReferer = req.headers.referer;
 	var requestHttpVersion = req.httpVersion;
@@ -17,6 +17,6 @@ exports.presenter = function (req, res, domain, settings, isCloud) {
 		res.writeHead(200, { 'Content-Type': 'text/html' });
 		res.end(sHTM);
 	} else {
-		template.templateDataMerge(req, res, domain, settings, isCloud);
+		template.templateDataMerge(req, res, domain, settings, useCloudData, configName);
 	}
 };

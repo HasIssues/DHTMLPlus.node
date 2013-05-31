@@ -8,38 +8,46 @@ var response = { statusCode: 500, contentType: "text/html", template: "LOADING",
 var req = null;
 var res = null;
 
-exports.templateDataMerge = function (processRequest, processResponse, domain, settings, isCloud) {
-	console.log(response);
+exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
+	//console.log(response);
 	response.html = "<h1>No Content Found for " + domain + ".</h1>";
 	req = processRequest;
 	res = processResponse;
 	parseURL(req.url);
-	load(domain, settings, isCloud);
+	load(domain, settings, useCloudData, configName);
 };
-var load = function (domain, settings, isCloud) {
+var load = function (domain, settings, useCloudData, configName) {
 	response.statusCode = 200;
-	console.log(response);
-	console.log(path);
-	if (isCloud) {
-		var blobService = azure.createBlobService();
+	//console.log(response);
+	//console.log(path);
+	if (useCloudData) {
+		var blobService = null;
+		if (configName == "LOCAL") {
+			//-- do this to run local but use cloud storage
+			var dev = require("./dev.js");
+			blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
+		} else {
+			//-- get access keys from IIS in Azure 
+			blobService = azure.createBlobService();
+		}
 		//-- load the template
 		blobService.getBlobToText(domain.replace(".", "-"), path.templateName, 
 			function (error, text, blockBlob) {
-				if (error == null) { response.template = text;} else { response.template = "NONE"; console.log(error); }
+				if (error == null) { response.template = text;} else { response.template = "NONE"; console.log("\n" + error); }
 				merge();
 			}
 		);
 		//-- load template config
 		blobService.getBlobToText(domain.replace(".", "-"), path.templateConfigName, 
 			function (error, text, blockBlob) {
-				if (error == null) { response.templateConfig = text;} else { response.templateConfig = "NONE"; console.log(error); }
+				if (error == null) { response.templateConfig = text;} else { response.templateConfig = "NONE"; console.log("\n" + error); }
 				merge();
 			}
 		);
 		//-- load the content
 		blobService.getBlobToText(domain.replace(".", "-"), path.contentFileName, 
 			function (error, text, blockBlob) {
-				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log(error); }
+				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log("\n" + error); }
 				merge();
 			}
 		);
@@ -56,7 +64,7 @@ var load = function (domain, settings, isCloud) {
 };
 
 var merge = function () {
-	console.log(response);
+	//console.log(response);
 	var allLoaded = true;
 	//-- reasons to wait
 	if (response.template == "LOADING") {allLoaded = false; }
@@ -69,9 +77,9 @@ var merge = function () {
 		//-- add processed html to response
 		response.html = $.html();
 		//-- debug
-		console.log(path);
-		console.log(response.template);
-		console.log(response.content);
+		//console.log(path);
+		//console.log(response.template);
+		//console.log(response.content);
 		//-- all done
 		res.writeHead(response.statusCode, { 'Content-Type': response.contentType });
 		res.end(response.template);
