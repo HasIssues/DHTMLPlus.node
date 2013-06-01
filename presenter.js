@@ -9,6 +9,7 @@ exports.presenter = function (req, res, domain, settings, useCloudData, configNa
 	var requestURL = req.url;
 	var requestMethod = req.method;
 	//-- if default azure site, list all sites
+	console.log(domain);
 	if (domain == "azurewebsites.net") {
 		var sHTM = "<h1>Azure Web Sites</h1>";
 		for (var node in settings.endpoint) {

@@ -9,7 +9,6 @@ var req = null;
 var res = null;
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
-	//console.log(response);
 	response.html = "<h1>No Content Found for " + domain + ".</h1>";
 	req = processRequest;
 	res = processResponse;
@@ -18,8 +17,6 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 };
 var load = function (domain, settings, useCloudData, configName) {
 	response.statusCode = 200;
-	//console.log(response);
-	//console.log(path);
 	if (useCloudData) {
 		var blobService = null;
 		if (configName == "LOCAL") {
@@ -64,7 +61,6 @@ var load = function (domain, settings, useCloudData, configName) {
 };
 
 var merge = function () {
-	//console.log(response);
 	var allLoaded = true;
 	//-- reasons to wait
 	if (response.template == "LOADING") {allLoaded = false; }
@@ -76,10 +72,6 @@ var merge = function () {
 		var $ = cheerio.load(response.template);
 		//-- add processed html to response
 		response.html = $.html();
-		//-- debug
-		//console.log(path);
-		//console.log(response.template);
-		//console.log(response.content);
 		//-- all done
 		res.writeHead(response.statusCode, { 'Content-Type': response.contentType });
 		res.end(response.template);
