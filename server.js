@@ -23,7 +23,6 @@ if (process.env.PORT != undefined) {
 }
 //-- HTTP Server for redirect
 http.createServer(function (req, res) {
-	console.log("\nREQUEST");
 	var requestHost = req.headers.host.toLowerCase(); 
 	var requestReferer = req.headers.referer;
 	var requestHttpVersion = req.httpVersion;
