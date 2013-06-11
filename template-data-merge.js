@@ -113,7 +113,7 @@ var merge = function () {
 		//-- load template into cheerio, jquery style
 		var $ = cheerio.load(response.html);
 		//-- merge in content
-		if (response.content != "NONE") {mergeContent($); }
+		if (response.content != "NONE" && response.content != "LOADING") {mergeContent($); }
 
 		//-- all done
 		res.writeHead(response.statusCode, { 'Content-Type': response.contentType });
