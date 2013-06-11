@@ -4,7 +4,7 @@ var fs = require("fs");
 var xml = require("node-xml");
 
 var path = { params: [], fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "" };
-var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", data: "", html: "" };
+var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", data: "", html: "NONE" };
 var req = null;
 var res = null;
 var templateDir = null;
@@ -134,7 +134,7 @@ var mergeContent = function ($) {
 	}
 	//-- apply metadata
 	if (content["metadata"] != null) {
-		$("head title").html(content["metadata"]["text"]);
+		$("head title").html(content["metadata"]["pageTitle"]["text"]);
 	}
 };
 
