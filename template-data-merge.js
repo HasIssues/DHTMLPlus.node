@@ -4,7 +4,7 @@ var fs = require("fs");
 var xml = require("node-xml");
 
 var path = { params: [], fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "" };
-var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", data: "", html: "NONE" };
+var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", data: "", html: "" };
 var req = null;
 var res = null;
 var templateDir = null;
@@ -61,6 +61,14 @@ var load = function (domain, settings, useCloudData, configName) {
 			function (error, text, blockBlob) {
 				if (error == null) { response.template = text;} else { response.template = "NONE"; console.log("\n" + error); }
 				merge();
+				//-- do we have a master page
+				var tQ = cheerio.load(response.template);
+				blobService.getBlobToText(domain.replace(".", "-"), tQ("head").attr("masterPage") + ".htm", 
+					function (error, text, blockBlob) {
+						if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n" + error); }
+						merge();
+					}
+				);
 			}
 		);
 		//-- load template config
@@ -84,13 +92,6 @@ var load = function (domain, settings, useCloudData, configName) {
 			//-- do we have a master page
 			var tQ = cheerio.load(response.template);
 			try { response.masterPage = fs.readFileSync(templateDir + "/" + tQ("head").attr("masterPage") + ".htm", "utf8"); } catch (e) { response.masterPage = "NONE"; }
-			//-- put master and template together
-			if (response.masterPage != "NONE") {
-				$ = cheerio.load(response.masterPage);
-				response.html = response.masterPage.replace("<!--PageTemplate-->", tQ("body").html()).replace("<!--PageTemplateHead-->", tQ("head").html());
-			} else {
-				response.html = response.template;
-			}
 		} catch (e) {
 			response.template = "NONE";
 		}
@@ -108,8 +109,16 @@ var merge = function () {
 	if (response.template == "LOADING") {allLoaded = false; }
 	if (response.templateConfig == "LOADING") { allLoaded = false; }
 	if (response.content == "LOADING") { allLoaded = false; }
+	if (response.masterPage == "LOADING") { allLoaded = false; }
 	//-- we have all files
 	if (allLoaded) {
+		//-- put master and template together
+		if (response.masterPage != "NONE") {
+			var tQ = cheerio.load(response.template);
+			response.html = response.masterPage.replace("<!--PageTemplate-->", tQ("body").html()).replace("<!--PageTemplateHead-->", tQ("head").html());
+		} else {
+			response.html = response.template;
+		}
 		//-- load template into cheerio, jquery style
 		var $ = cheerio.load(response.html);
 		//-- merge in content
