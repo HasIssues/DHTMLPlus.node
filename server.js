@@ -47,6 +47,7 @@ http.createServer(function (req, res) {
 	} else if (settings.config[configName].endpoint != null && subDomain == settings.config[configName].endpoint[domain].subDomain) {
 		//-- process request
 		console.log("Process " + requestMethod + " Request " + requestHost + requestURL);
+		res.end(machineName);
 		content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
 	} else {
 		//-- not processed
@@ -57,4 +58,4 @@ http.createServer(function (req, res) {
 }).listen(port);
 
 //-- Ready and Listening
-console.log(configName + " Config used and Listening on port " + port + ".");
+console.log(configName + " Config used and Listening on port " + port + " on machine " + machineName  + ".");
