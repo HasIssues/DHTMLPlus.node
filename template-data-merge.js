@@ -30,6 +30,14 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 					res.writeHead(404, { 'Content-Type': 'text/css', 'error': 'File Not Found.' });
 					res.end("OPPS");
 				}
+			} else if (path.path == "/client-scripts") {
+				try {
+					res.writeHead(200, { 'Content-Type': 'text/javascript' });
+					res.end(fs.readFileSync("./client-scripts/" + path.fileName, "utf8"));
+				} catch (e) {
+					res.writeHead(404, { 'Content-Type': 'text/javascript', 'error': 'File Not Found.' });
+					res.end("OPPS");
+				}
 			} else if (path.fileName.indexOf(".js") > 0) {
 				try {
 					res.writeHead(200, { 'Content-Type': 'text/javascript' });
@@ -124,9 +132,12 @@ var merge = function () {
 		//-- merge in content
 		if (response.content != "NONE" && response.content != "LOADING") {mergeContent($); }
 
+		var stringHTM = $.html();
+		//-- clear content edit
+		stringHTM = stringHTM.replace(/contenteditable="true"/g, " ");
 		//-- all done
 		res.writeHead(response.statusCode, { 'Content-Type': response.contentType });
-		res.end($.html());
+		res.end(stringHTM);
 	}
 };
 
@@ -158,6 +169,7 @@ var parseURL = function (uriString) {
 	}
 	//-- split page from path
 	if (path.pagePath.indexOf("/") > -1) {
+		path.path = "";
 		var tmp = path.pagePath.split("/");
 		path.templateName = tmp[tmp.length - 1].indexOf(".htm") > 0 ? tmp[tmp.length - 1] : tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1] + ".htm";
 		path.fileName = tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1];
@@ -170,5 +182,5 @@ var parseURL = function (uriString) {
 	//-- set config name
 	path.templateConfigName = path.templateName.replace(".htm", ".js");
 	//-- set content file name
-	path.contentFileName = path.templateName.replace(".htm", ".js");
+	path.contentFileName = path.templateName.replace(".htm", ".json");
 };
