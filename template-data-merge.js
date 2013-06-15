@@ -46,7 +46,11 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 					}
 					blobService.getBlobToStream(domain.replace(".", "-"), filePath, processResponse,
 						function (err) {
-							if (err) { if (verboseConsole) { console.log(filePath + ": " + err); } } else { if (verboseConsole) { console.log("BLOB: " + filePath); } }
+							if (err) {
+								console.log(filePath + ": " + err);
+							} else {
+								if (verboseConsole) { console.log("BLOB: " + filePath); }
+							}
 							processResponse.end();
 						}
 					);

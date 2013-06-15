@@ -44,7 +44,7 @@ var walk = function(dir, domain, baseDir, done) {
 						var blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
 						blobService.createBlockBlobFromFile(domain.replace(".", "-"), file.substring(baseDir.length + 1), file,
 							function (err) {
-								if (err) { results.push(file.substring(baseDir.length + 1)); }
+								if (err) { results.push("ERROR: " + file.substring(baseDir.length + 1)); }
 							}
 						);
 					}
