@@ -5,7 +5,7 @@ var xml = require("node-xml");
 var verboseConsole = false;
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
-	var path = { params: [], fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "" };
+	var path = { params: [], fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
 	var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", data: "", html: "" };
 	response.html = "<h1>No Content Found for " + domain + ".</h1>";
 	templateDir = "templates/" + domain.replace(".", "-");
@@ -146,7 +146,14 @@ var load = function (processRequest, processResponse, path, response, domain, se
 			}
 		);
 		//-- load the content json file
-		fs.readFile(templateDir + "/content/" + path.contentFileName, "utf8",
+		var contentFile = null;
+		if (path.isBlog) {
+			contentFile =  path.path + "/" + path.contentFileName;
+		} else {
+			contentFile =  "/content/" + path.contentFileName;
+		}
+		console.log(contentFile);
+		fs.readFile(templateDir + contentFile, "utf8",
 			function (err, data) {
 				console.log("TEMPLATE: " + path.contentFileName);
 				if (err) { response.content = "NONE"; } else { response.content = data; }
@@ -214,6 +221,7 @@ var mergeContent = function ($, processRequest, processResponse, path, response)
 };
 
 var parseURL = function (processRequest, path, response) {
+	//http://preview.hasissues.com/blog/Mark.Hebert/2010/11/basic-SEO/
 	var uriString = processRequest.url;
 	//-- split at ?
 	if (uriString.indexOf("?") > -1) {
@@ -227,9 +235,17 @@ var parseURL = function (processRequest, path, response) {
 	if (path.pagePath.indexOf("/") > -1) {
 		path.path = "";
 		var tmp = path.pagePath.split("/");
-		path.templateName = tmp[tmp.length - 1].indexOf(".htm") > 0 ? tmp[tmp.length - 1] : tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1] + ".htm";
-		path.fileName = tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1];
-		for (var x = 1; x < tmp.length - 1; x++) { path.path += "/" + tmp[x]; }
+		if (tmp[1] == "blog") {
+			path.isBlog = true;
+			path.templateName = "blog.htm";
+			path.fileName = "blog.htm";
+			for (var x = 1; x < tmp.length - 2; x++) { path.path += "/" + tmp[x]; }
+			path.contentFileName = tmp[tmp.length - 2] + ".json";
+		} else {
+			path.templateName = tmp[tmp.length - 1].indexOf(".htm") > 0 ? tmp[tmp.length - 1] : tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1] + ".htm";
+			path.fileName = tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1];
+			for (var x = 1; x < tmp.length - 1; x++) { path.path += "/" + tmp[x]; }
+		}
 	} else {
 		path.path = "/";
 		path.fileName = path.pagePath;
@@ -238,5 +254,7 @@ var parseURL = function (processRequest, path, response) {
 	//-- set config name
 	path.templateConfigName = path.templateName.replace(".htm", ".js");
 	//-- set content file name
-	path.contentFileName = path.templateName.replace(".htm", ".json");
+	if (!path.isBlog) {
+		path.contentFileName = path.templateName.replace(".htm", ".json");
+	}
 };
