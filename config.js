@@ -1,6 +1,7 @@
 exports.config = {
 	"LOCAL": {
 		endpoint: {
+			"azurewebsites.net": { subDomain: "hasissues", port: 80 },
 			"360report.com": { subDomain: "preview", port: 80 },
 			"bestnetchoice.com": { subDomain: "preview", port: 80 },
 			"bowzntoez.com": { subDomain: "preview", port: 80 },
@@ -20,6 +21,7 @@ exports.config = {
 			"webtavern.net": { subDomain: "preview", port: 80 }
 		},
 		redirect: {
+			"azurewebsites.net": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },
 			"360report.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },
 			"bestnetchoice.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },
 			"bowzntoez.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },
@@ -61,6 +63,7 @@ exports.config = {
 			"webtavern.net": { subDomain: "www", port: 80 }
 		},
 		redirect: {
+			"azurewebsites.net": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },
 			"360report.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },
 			"bestnetchoice.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },
 			"bowzntoez.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 },

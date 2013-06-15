@@ -19,7 +19,7 @@ var useCloudData = true; //-- change to true to run local against cloud resource
 if (process.env.PORT != undefined) {
 	configName = "AZURE";
 	port = process.env.PORT || 1337;
-	useCloudData = true;
+	useCloudData = false;
 }
 //-- HTTP Server for redirect
 http.createServer(function (req, res) {
@@ -46,7 +46,6 @@ http.createServer(function (req, res) {
 		res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
 	} else if (settings.config[configName].endpoint != null && subDomain == settings.config[configName].endpoint[domain].subDomain) {
 		//-- process request
-		//console.log("Process " + requestMethod + " Request " + requestHost + requestURL);
 		content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
 	} else {
 		//-- not processed
