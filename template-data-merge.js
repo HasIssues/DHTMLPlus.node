@@ -2,6 +2,7 @@ var cheerio = require("cheerio");
 var azure = require('azure');
 var fs = require("fs");
 var xml = require("node-xml");
+var verboseConsole = false;
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
 	var path = { params: [], fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "" };
@@ -9,7 +10,7 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 	response.html = "<h1>No Content Found for " + domain + ".</h1>";
 	templateDir = "templates/" + domain.replace(".", "-");
 	parseURL(processRequest, path, response);
-	console.log("REQUEST: " + path.fileName);
+	if (verboseConsole) { console.log("REQUEST: " + path.fileName); }
 	if (path.fileName == "publish.htm" && configName == "LOCAL") {
 		var pub = require("./template-push-to-blob.js");
 		pub.publishTemplates(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
@@ -54,14 +55,14 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 					}
 					blobService.getBlobToStream(domain.replace(".", "-"), filePath, processResponse,
 						function (err) {
-							if (err) { console.log("BLOB: " + err); } else { console.log("BLOB: " + filePath); }
+							if (err) { if (verboseConsole) { console.log(filePath + ": " + err); } } else { if (verboseConsole) { console.log("BLOB: " + filePath); } }
 							processResponse.end();
 						}
 					);
 				} else {
 					if (!sharedCode) {filePath = templateDir + "/" + filePath; }
 					fs.readFile(filePath, fileEncode, function (err, data) {
-						console.log("RESPONSE: " + filePath);
+						if (verboseConsole) { console.log("RESPONSE: " + filePath); }
 						if (err) {
 							processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
 							processResponse.end("OPPS");
@@ -100,7 +101,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 				var tQ = cheerio.load(response.template);
 				blobService.getBlobToText(domain.replace(".", "-"), tQ("head").attr("masterPage") + ".htm", 
 					function (error, text, blockBlob) {
-						if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n" + error); }
+						if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n"  + tQ("head").attr("masterPage") + ".htm" + "\n" + error); }
 						merge(processRequest, processResponse, path, response);
 					}
 				);
@@ -109,14 +110,14 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		//-- load template config
 		blobService.getBlobToText(domain.replace(".", "-"), path.templateConfigName, 
 			function (error, text, blockBlob) {
-				if (error == null) { response.templateConfig = text;} else { response.templateConfig = "NONE"; console.log("\n" + error); }
+				if (error == null) { response.templateConfig = text;} else { response.templateConfig = "NONE"; console.log("\n" + path.templateConfigName + "\n" + error); }
 				merge(processRequest, processResponse, path, response);
 			}
 		);
 		//-- load the content
-		blobService.getBlobToText(domain.replace(".", "-"), path.contentFileName, 
+		blobService.getBlobToText(domain.replace(".", "-"), "content/" + path.contentFileName, 
 			function (error, text, blockBlob) {
-				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log("\n" + error); }
+				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log("\n" + "content/" + path.contentFileName + "\n" + error); }
 				merge(processRequest, processResponse, path, response);
 			}
 		);
