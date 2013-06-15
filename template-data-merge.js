@@ -19,18 +19,9 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 		} else {
 			//-- static files
-			var sharedCode = false;
 			var filePath = null;
 			var fileEncode = "utf8";
-			if (path.path == "/client-scripts") {
-				sharedCode = true;
-				filePath = "./client-scripts/" + path.fileName;
-				if (path.fileName.indexOf(".js") > 0) {
-					response.contentType = "text/javascript";
-				} else if (path.fileName.indexOf(".css") > 0) {
-					response.contentType = "text/css";
-				}
-			} else if (path.fileName.indexOf(".css") > 0) {
+			if (path.fileName.indexOf(".css") > 0) {
 				filePath = "css/" + path.fileName;
 				response.contentType = "text/css";
 			} else if (path.fileName.indexOf(".js") > 0) {
@@ -43,7 +34,7 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 			}
 			//-- go get the file
 			if (filePath != null) {
-				if (useCloudData && !sharedCode) {
+				if (useCloudData) {
 					var blobService = null;
 					if (configName == "LOCAL") {
 						//-- do this to run local but use cloud storage
@@ -60,7 +51,7 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 						}
 					);
 				} else {
-					if (!sharedCode) {filePath = templateDir + "/" + filePath; }
+					filePath = templateDir + "/" + filePath;
 					fs.readFile(filePath, fileEncode, function (err, data) {
 						if (verboseConsole) { console.log("RESPONSE: " + filePath); }
 						if (err) {
