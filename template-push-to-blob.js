@@ -7,21 +7,21 @@ var fs = require("fs");
 var settings = require('./config.js');
 var dev = require("./dev.js");
 
-exports.publishTemplates = function (webRequest, webResponse, domain, settings, useCloudData, configName) {
+exports.publishTemplates = function (processRequest, processResponse, path, response, domain, settings, useCloudData, configName) {
 	if (configName == "LOCAL") {
-		walk("./templates/" + domain.replace(".", "-"), function(err, results) {
+		baseDir = "./templates/" + domain.replace(".", "-");
+		walk(baseDir, domain, baseDir, function(err, results) {
 			if (err) { 
-				webResponse.end(err.toString());
+				processResponse.end(err.toString());
 			} else {
-				var blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
-				webResponse.write("<h1>Deploy Templates for " + domain + "</h1>");
-				webResponse.end(results.join("<br/>"));
+				processResponse.write("<h1>Deploy Templates for " + domain + "</h1>");
+				processResponse.end(results.join("<br/>"));
 			}
 		});
 	}
 };
 
-var walk = function(dir, done) {
+var walk = function(dir, domain, baseDir, done) {
 	var results = [];
 	fs.readdir(dir, function(err, list) {
 		if (err) return done(err);
@@ -33,12 +33,21 @@ var walk = function(dir, done) {
 			fs.stat(file, function(err, stat) {
 				if (stat && stat.isDirectory()) {
 					if (!file.endsWith("/logs") && !file.endsWith("/archive")) {
-						walk(file, function(err, res) { results = results.concat(res); next(); });
+						walk(file, domain, baseDir, function(err, res) { results = results.concat(res); next(); });
 					} else {
 						next();
 					}
 				} else {
-					results.push(file);
+					if (!file.endsWith("/Thumbs.db")) {
+						results.push(file.substring(baseDir.length + 1));
+						//-- upload file
+						var blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
+						blobService.createBlockBlobFromFile(domain.replace(".", "-"), file.substring(baseDir.length + 1), file,
+							function (err) {
+								if (err) { results.push(file.substring(baseDir.length + 1)); }
+							}
+						);
+					}
 					next();
 				}
 			});

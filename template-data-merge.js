@@ -18,9 +18,11 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 		} else {
 			//-- static files
+			var sharedCode = false;
 			var filePath = null;
 			var fileEncode = "utf8";
 			if (path.path == "/client-scripts") {
+				sharedCode = true;
 				filePath = "./client-scripts/" + path.fileName;
 				if (path.fileName.indexOf(".js") > 0) {
 					response.contentType = "text/javascript";
@@ -28,28 +30,47 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 					response.contentType = "text/css";
 				}
 			} else if (path.fileName.indexOf(".css") > 0) {
-				filePath = templateDir + "/css/" + path.fileName;
+				filePath = "css/" + path.fileName;
 				response.contentType = "text/css";
 			} else if (path.fileName.indexOf(".js") > 0) {
-				filePath = templateDir + "/scripts/" + path.fileName;
+				filePath = "scripts/" + path.fileName;
 				response.contentType = "text/javascript";
 			} else if (path.fileName.indexOf(".gif") > 0) {
-				filePath = templateDir + "/images/" + path.fileName;
+				filePath = "images/" + path.fileName;
 				response.contentType = "image/gif";
 				fileEncode = null;
 			}
 			//-- go get the file
 			if (filePath != null) {
-				fs.readFile(filePath, fileEncode, function (err, data) {
-					console.log("RESPONSE: " + path.fileName);
-					if (err) {
-						processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
-						processResponse.end("OPPS");
+				if (useCloudData && !sharedCode) {
+					var blobService = null;
+					if (configName == "LOCAL") {
+						//-- do this to run local but use cloud storage
+						var dev = require("./dev.js");
+						blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
 					} else {
-						processResponse.writeHead(200, { 'Content-Type': response.contentType });
-						processResponse.end(data);
+						//-- get access keys from IIS in Azure 
+						blobService = azure.createBlobService();
 					}
-				});
+					blobService.getBlobToStream(domain.replace(".", "-"), filePath, processResponse,
+						function (err) {
+							if (err) { console.log("BLOB: " + err); } else { console.log("BLOB: " + filePath); }
+							processResponse.end();
+						}
+					);
+				} else {
+					if (!sharedCode) {filePath = templateDir + "/" + filePath; }
+					fs.readFile(filePath, fileEncode, function (err, data) {
+						console.log("RESPONSE: " + filePath);
+						if (err) {
+							processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
+							processResponse.end("OPPS");
+						} else {
+							processResponse.writeHead(200, { 'Content-Type': response.contentType });
+							processResponse.end(data);
+						}
+					});
+				}
 			} else {
 				processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
 				processResponse.end("NONE");
