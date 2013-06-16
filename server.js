@@ -19,7 +19,7 @@ var useCloudData = false; //-- change to true to run local against cloud resourc
 if (process.env.PORT != undefined) {
 	configName = "AZURE";
 	port = process.env.PORT || 1337;
-	useCloudData = false;
+	useCloudData = true;
 }
 //-- HTTP Server for redirect
 http.createServer(function (req, res) {
