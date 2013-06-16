@@ -115,7 +115,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		} else {
 			contentFile =  "content/" + path.contentFileName;
 		}
-		blobService.getBlobToText(domain.replace(".", "-"), "content/" + path.contentFileName, 
+		blobService.getBlobToText(domain.replace(".", "-"), contentFile, 
 			function (error, text, blockBlob) {
 				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log("\n" + "content/" + path.contentFileName + "\n" + error); }
 				merge(processRequest, processResponse, path, response);
