@@ -38,7 +38,7 @@ http.createServer(function (req, res) {
 		subDomain = requestHostArray[0];
 	}
 	//-- now lets respond to a request
-	try {
+	if (settings.config[configName].redirect[domain] != undefined) {
 		if (settings.config[configName].redirect != null && subDomain == settings.config[configName].redirect[domain].subDomain) {
 			//-- process redirect
 			var redirectTO = settings.config[configName].redirect[domain].directTo + "." + domain;
@@ -54,10 +54,10 @@ http.createServer(function (req, res) {
 			res.end(requestHost + ' Not Found.');
 			console.log(requestHost + ' Not Found.');
 		}
-	} catch (err) {
+	} else {
 		res.writeHead(404, { 'error': 'Site Not Found.' });
 		res.end(subDomain + "." + domain + ", Not Hosted Here");
-		console.log(subDomain + "." + domain);
+		console.log("NOT HOSTED: " + subDomain + "." + domain);
 	}
 }).listen(port);
 
