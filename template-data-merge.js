@@ -69,7 +69,7 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 				}
 			} else {
 				processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
-				processResponse.end("NONE");
+				processResponse.end("404");
 			}
 		}
 	}
