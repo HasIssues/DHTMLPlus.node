@@ -38,20 +38,26 @@ http.createServer(function (req, res) {
 		subDomain = requestHostArray[0];
 	}
 	//-- now lets respond to a request
-	if (settings.config[configName].redirect != null && subDomain == settings.config[configName].redirect[domain].subDomain) {
-		//-- process redirect
-		var redirectTO = settings.config[configName].redirect[domain].directTo + "." + domain;
-		console.log("Redirect " + requestHost + " to " + redirectTO);
-		res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
-		res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
-	} else if (settings.config[configName].endpoint != null && subDomain == settings.config[configName].endpoint[domain].subDomain) {
-		//-- process request
-		content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
-	} else {
-		//-- not processed
+	try {
+		if (settings.config[configName].redirect != null && subDomain == settings.config[configName].redirect[domain].subDomain) {
+			//-- process redirect
+			var redirectTO = settings.config[configName].redirect[domain].directTo + "." + domain;
+			console.log("Redirect " + requestHost + " to " + redirectTO);
+			res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
+			res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
+		} else if (settings.config[configName].endpoint != null && subDomain == settings.config[configName].endpoint[domain].subDomain) {
+			//-- process request
+			content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
+		} else {
+			//-- not processed
+			res.writeHead(404, { 'error': 'Site Not Found.' });
+			res.end(requestHost + ' Not Found.');
+			console.log(requestHost + ' Not Found.');
+		}
+	} catch (err) {
 		res.writeHead(404, { 'error': 'Site Not Found.' });
-		res.end(requestHost + ' Not Found.');
-		console.log(requestHost + ' Not Found.');
+		res.end(subDomain + "." + domain + ", Not Hosted Here");
+		console.log(subDomain + "." + domain);
 	}
 }).listen(port);
 

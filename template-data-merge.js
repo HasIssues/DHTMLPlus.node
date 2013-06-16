@@ -110,6 +110,11 @@ var load = function (processRequest, processResponse, path, response, domain, se
 			}
 		);
 		//-- load the content
+		if (path.isBlog) {
+			contentFile =  path.path.substring(1) + "/" + path.contentFileName;
+		} else {
+			contentFile =  "content/" + path.contentFileName;
+		}
 		blobService.getBlobToText(domain.replace(".", "-"), "content/" + path.contentFileName, 
 			function (error, text, blockBlob) {
 				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log("\n" + "content/" + path.contentFileName + "\n" + error); }
@@ -120,7 +125,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		//-- load the template and master
 		fs.readFile(templateDir + "/" + path.templateName, "utf8",
 			function (err, data) {
-				console.log("TEMPLATE: " + path.templateName);
+				if (verboseConsole) { console.log("TEMPLATE: " + path.templateName); }
 				if (err) {
 					response.template = "NONE";
 					response.masterPage = "NONE";
@@ -140,7 +145,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		//-- load template server side code behind script
 		fs.readFile(templateDir + "/" + path.templateConfigName, "utf8",
 			function (err, data) {
-				console.log("TEMPLATE: " + path.templateConfigName);
+				if (verboseConsole) { console.log("TEMPLATE: " + path.templateConfigName); }
 				if (err) { response.templateConfig = "NONE"; } else { response.templateConfig = data; }
 				merge(processRequest, processResponse, path, response);
 			}
@@ -152,10 +157,9 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		} else {
 			contentFile =  "/content/" + path.contentFileName;
 		}
-		console.log(contentFile);
 		fs.readFile(templateDir + contentFile, "utf8",
 			function (err, data) {
-				console.log("TEMPLATE: " + path.contentFileName);
+				if (verboseConsole) { console.log("TEMPLATE: " + path.contentFileName); }
 				if (err) { response.content = "NONE"; } else { response.content = data; }
 				merge(processRequest, processResponse, path, response);
 			}
@@ -216,7 +220,7 @@ var mergeContent = function ($, processRequest, processResponse, path, response)
 			$("head title").html(content["metadata"]["pageTitle"]["text"]);
 		}
 	} else {
-		console.log("No Content for " + path.fileName);
+		if (verboseConsole) { console.log("No Content for " + path.fileName); }
 	}
 };
 
