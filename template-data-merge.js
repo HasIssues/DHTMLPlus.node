@@ -10,14 +10,15 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 	response.html = "<h1>No Content Found for " + domain + ".</h1>";
 	templateDir = "templates/" + domain.replace(".", "-");
 	parseURL(processRequest, path, response);
-	if (verboseConsole) { console.log("REQUEST: " + path.fileName); }
 	if (path.fileName == "publish.htm" && configName == "LOCAL") {
 		var pub = require("./template-push-to-blob.js");
 		pub.publishTemplates(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 	} else {
 		if (path.fileName.indexOf(".htm") > 0) {
+			console.log("REQUEST: " + domain + processRequest.url);
 			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 		} else {
+			if (verboseConsole) { console.log("REQUEST: " + path.fileName); }
 			//-- static files
 			var filePath = null;
 			var fileEncode = "utf8";
@@ -110,12 +111,13 @@ var load = function (processRequest, processResponse, path, response, domain, se
 			}
 		);
 		//-- load the content
+		var contentFilePath = null;
 		if (path.isBlog) {
-			contentFile =  path.path.substring(1) + "/" + path.contentFileName;
+			contentFilePath =  path.path.substring(1) + "/" + path.contentFileName;
 		} else {
-			contentFile =  "content/" + path.contentFileName;
+			contentFilePath =  "content/" + path.contentFileName;
 		}
-		blobService.getBlobToText(domain.replace(".", "-"), contentFile, 
+		blobService.getBlobToText(domain.replace(".", "-"), contentFilePath, 
 			function (error, text, blockBlob) {
 				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log("\n" + "content/" + path.contentFileName + "\n" + error); }
 				merge(processRequest, processResponse, path, response);
@@ -239,7 +241,12 @@ var parseURL = function (processRequest, path, response) {
 	if (path.pagePath.indexOf("/") > -1) {
 		path.path = "";
 		var tmp = path.pagePath.split("/");
-		if (tmp[1] == "blog") {
+		if (tmp[1] == "blog" && tmp[2] == "tags") {
+			path.templateName = "blog-tag-list.htm";
+			path.fileName = "blog-tag-list.htm";
+			for (var x = 1; x < tmp.length - 2; x++) { path.path += "/" + tmp[x]; }
+			path.contentFileName = "blog_tags_" + tmp[tmp.length - 2] + "_blog-tag-list.json";
+		} else if (tmp[1] == "blog") {
 			path.isBlog = true;
 			path.templateName = "blog.htm";
 			path.fileName = "blog.htm";
@@ -249,6 +256,7 @@ var parseURL = function (processRequest, path, response) {
 			path.templateName = tmp[tmp.length - 1].indexOf(".htm") > 0 ? tmp[tmp.length - 1] : tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1] + ".htm";
 			path.fileName = tmp[tmp.length - 1] == "" ? "home.htm" : tmp[tmp.length - 1];
 			for (var x = 1; x < tmp.length - 1; x++) { path.path += "/" + tmp[x]; }
+			path.contentFileName = path.templateName.replace(".htm", ".json");
 		}
 	} else {
 		path.path = "/";
@@ -257,8 +265,8 @@ var parseURL = function (processRequest, path, response) {
 	}
 	//-- set config name
 	path.templateConfigName = path.templateName.replace(".htm", ".js");
-	//-- set content file name
-	if (!path.isBlog) {
-		path.contentFileName = path.templateName.replace(".htm", ".json");
-	}
+};
+
+String.prototype.endsWith = function(suffix) {
+	return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };

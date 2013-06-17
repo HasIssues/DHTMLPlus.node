@@ -38,26 +38,35 @@ http.createServer(function (req, res) {
 		subDomain = requestHostArray[0];
 	}
 	//-- now lets respond to a request
+	var redirect = false;
 	if (settings.config[configName].redirect[domain] != undefined) {
 		if (settings.config[configName].redirect != null && subDomain == settings.config[configName].redirect[domain].subDomain) {
-			//-- process redirect
-			var redirectTO = settings.config[configName].redirect[domain].directTo + "." + domain;
-			console.log("Redirect " + requestHost + " to " + redirectTO);
-			res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
-			res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
-		} else if (settings.config[configName].endpoint != null && subDomain == settings.config[configName].endpoint[domain].subDomain) {
-			//-- process request
-			content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
-		} else {
-			//-- not processed
-			res.writeHead(404, { 'error': 'Site Not Found.' });
-			res.end(requestHost + ' Not Found.');
-			console.log(requestHost + ' Not Found.');
+			redirect = true;
 		}
+	}
+	var hosted = false;
+	if (settings.config[configName].endpoint[domain] != undefined) {
+		if (settings.config[configName].endpoint != null && subDomain == settings.config[configName].endpoint[domain].subDomain) {
+			hosted = true;
+		}
+	}
+	if (redirect) {
+		//-- process redirect
+		var redirectTO = settings.config[configName].redirect[domain].directTo + "." + domain;
+		console.log("Redirect " + requestHost + " to " + redirectTO);
+		res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
+		res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
+	} else if (hosted) {
+		//-- process request
+		content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
 	} else {
-		res.writeHead(404, { 'error': 'Site Not Found.' });
-		res.end(subDomain + "." + domain + ", Not Hosted Here");
-		console.log("NOT HOSTED: " + subDomain + "." + domain);
+		//-- not processed
+		res.end();
+		if (subDomain != "") {
+			console.log("NOT HOSTED: " + subDomain + "." + domain + " REFERER: " + requestReferer);
+		} else {
+			console.log("NOT HOSTED: " + domain + " REFERER: " + requestReferer);
+		}
 	}
 }).listen(port);
 
