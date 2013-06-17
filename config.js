@@ -23,7 +23,9 @@ exports.config = {
 			"hobby-site.com": { subDomain: "console", port: 80 },
 			"sneakerz.com": { subDomain: "www", port: 80 }
 		},
-		redirect: { }
+		redirect: {
+			"sneakerz.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 }
+		}
 	},
 	"AZURE": {
 		endpoint: {
