@@ -21,6 +21,7 @@ if (process.env.PORT != undefined) {
 	port = process.env.PORT || 1337;
 	useCloudData = true;
 }
+
 //-- HTTP Server for redirect
 http.createServer(function (req, res) {
 	var requestHost = req.headers.host; 
