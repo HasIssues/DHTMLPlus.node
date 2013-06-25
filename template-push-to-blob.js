@@ -10,14 +10,24 @@ var dev = require("./dev.js");
 exports.publishTemplates = function (processRequest, processResponse, path, response, domain, settings, useCloudData, configName) {
 	if (configName == "LOCAL") {
 		baseDir = "./templates/" + domain.replace(".", "-");
-		walk(baseDir, domain, baseDir, function(err, results) {
-			if (err) { 
-				processResponse.end(err.toString());
-			} else {
-				processResponse.write("<h1>Deploy Templates for " + domain + "</h1>");
-				processResponse.end(results.join("<br/>"));
-			}
-		});
+		var publish = false;
+		if (path.params["deploy"]) {
+			walk(baseDir, domain, baseDir, function(err, results) {
+				if (err) { 
+					processResponse.end(err.toString());
+				} else {
+					processResponse.write("<h1>Deploy Templates for " + domain + "</h1>");
+					processResponse.end(results.join("<br/>"));
+				}
+			});
+		} else {
+			processResponse.write("<!DOCTYPE html>\n");
+			processResponse.write("<html><head><title>" + domain + "</title>");
+			processResponse.write("</head><body>");
+			processResponse.write("<h1>" + domain + " Publish</h1>");
+			processResponse.write("<a href=\"publish.htm?deploy=true\">Deploy Templates to Azure Blob Storage</a>");
+			processResponse.end("</body></html>");
+		}
 	}
 };
 

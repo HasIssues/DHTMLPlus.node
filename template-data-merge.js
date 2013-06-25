@@ -5,7 +5,7 @@ var xml = require("node-xml");
 var verboseConsole = false;
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
-	var path = { params: [], fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
+	var path = { params: null, fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
 	var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", data: "", html: "" };
 	response.html = "<h1>No Content Found for " + domain + ".</h1>";
 	templateDir = "templates/" + domain.replace(".", "-");
@@ -263,6 +263,22 @@ var parseURL = function (processRequest, path, response) {
 		path.fileName = path.pagePath;
 		path.templateName = path.pagePath;
 	}
+	//-- process querystring
+	var paramString = "{";
+	if (path.querystring.length > 0) {
+		var tmpQ = path.querystring.split("&");
+		for (var q = 0; q < tmpQ.length; q++) {
+			var tmpP = tmpQ[q].split("=");
+			if (tmpP[1] == true || tmpP[1] == "false") {
+				paramString += "\"" + tmpP[0] +"\":" + tmpP[1] + ",";
+			} else {
+				paramString += "\"" + tmpP[0] +"\":\"" + tmpP[1] + "\",";
+			}
+		}
+		if (paramString.endsWith(",")) { paramString = paramString.substring(0, paramString.length - 1); }
+	}
+	paramString += "}";
+	path.params = JSON.parse(paramString);
 	//-- set config name
 	path.templateConfigName = path.templateName.replace(".htm", ".js");
 };
