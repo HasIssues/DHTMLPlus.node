@@ -62,7 +62,31 @@ Template Setup
 --------------
 * Create a `templates` folder in you code folder and Exclude from git
 * Create a sub folder for each website. Example: `hasissues-com`.
-* the default page should be home.htm
+* the default page should be `home.htm`
+
+```html
+<html>
+<head fullPage="true" masterPage="MasterPage" codebehind="true">
+</head>
+<body>
+	<h1 id="content_01" contentEditable="true">New H1 Title Text</h1>
+	<p id="content_08" contentEditable="true">New Paragraph Text</p>
+	<h2 id="content_News_title" contentEditable="true">Title</h2>
+	<ul id="content_News" contentEditable="true"><li>Current</li></ul>
+	<div style="clear:both;"></div>
+</body>
+</html>
+```
+
+Server Side Code Behind
+-----------------------
+Code Behind lets you create server side script to execute on your templates.
+In the site template folder, create a js file with the same name as your template file. Example `home.js` for the code behind for `home.htm`
+```html
+var codebehind = function($, path, response) {
+	$("span.issues").html("ISSUES");
+};
+```
 
 Publishing Site Templates
 -------------------------

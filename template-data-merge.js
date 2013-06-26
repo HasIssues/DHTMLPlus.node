@@ -2,11 +2,13 @@ var cheerio = require("cheerio");
 var azure = require('azure');
 var fs = require("fs");
 var xml = require("node-xml");
+var vm = require("vm");
+
 var verboseConsole = false;
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
 	var path = { params: null, fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
-	var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", data: "", html: "" };
+	var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", codebehind: "LOADING", data: "", html: "" };
 	response.html = "<h1>No Content Found for " + domain + ".</h1>";
 	templateDir = "templates/" + domain.replace(".", "-");
 	parseURL(processRequest, path, response);
@@ -93,14 +95,31 @@ var load = function (processRequest, processResponse, path, response, domain, se
 			function (error, text, blockBlob) {
 				if (error == null) { response.template = text;} else { response.template = "NONE"; console.log("\n" + error); }
 				merge(processRequest, processResponse, path, response);
-				//-- do we have a master page
 				var tQ = cheerio.load(response.template);
-				blobService.getBlobToText(domain.replace(".", "-"), tQ("head").attr("masterPage") + ".htm", 
-					function (error, text, blockBlob) {
-						if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n"  + tQ("head").attr("masterPage") + ".htm" + "\n" + error); }
-						merge(processRequest, processResponse, path, response);
-					}
-				);
+				//-- do we have a master page
+				if (tQ("head").attr("masterPage") != null) {
+					blobService.getBlobToText(domain.replace(".", "-"), tQ("head").attr("masterPage") + ".htm", 
+						function (error, text, blockBlob) {
+							if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n"  + tQ("head").attr("masterPage") + ".htm" + "\n" + error); }
+							merge(processRequest, processResponse, path, response);
+						}
+					);
+				} else {
+					response.masterPage = "NONE";
+					merge(processRequest, processResponse, path, response);
+				}
+				//-- do we have codebehind
+				if (tQ("head").attr("codebehind") == "true") {
+					blobService.getBlobToText(domain.replace(".", "-"), path.templateName.replace(".htm", ".js"), 
+						function (error, text, blockBlob) {
+							if (error == null) { response.codebehind = text;} else { response.codebehind = "NONE"; console.log("\n"  + path.templateName.replace(".htm", ".js") + "\n" + error); }
+							merge(processRequest, processResponse, path, response);
+						}
+					);
+				} else {
+					response.codebehind = "NONE";
+					merge(processRequest, processResponse, path, response);
+				}
 			}
 		);
 		//-- load template config
@@ -135,12 +154,30 @@ var load = function (processRequest, processResponse, path, response, domain, se
 				} else {
 					response.template = data;
 					var tQ = cheerio.load(response.template);
-					fs.readFile(templateDir + "/" + tQ("head").attr("masterPage") + ".htm", "utf8",
-						function (err, data) {
-							if (err) { response.masterPage = "NONE"; } else { response.masterPage = data; }
-							merge(processRequest, processResponse, path, response);
-						}
-					);
+					//-- do we have a master page
+					if (tQ("head").attr("masterPage") != null) {
+						fs.readFile(templateDir + "/" + tQ("head").attr("masterPage") + ".htm", "utf8",
+							function (err, data) {
+								if (err) { response.masterPage = "NONE"; } else { response.masterPage = data; }
+								merge(processRequest, processResponse, path, response);
+							}
+						);
+					} else {
+						response.masterPage = "NONE";
+						merge(processRequest, processResponse, path, response);
+					}
+					//-- do we have codebehind
+					if (tQ("head").attr("codebehind") == "true") {
+						fs.readFile(templateDir + "/" + path.templateName.replace(".htm", ".js"), "utf8",
+							function (err, data) {
+								if (err) { response.codebehind = "NONE"; } else { response.codebehind = data; }
+								merge(processRequest, processResponse, path, response);
+							}
+						);
+					} else {
+						response.codebehind = "NONE";
+						merge(processRequest, processResponse, path, response);
+					}
 				}
 			}
 		);
@@ -176,6 +213,7 @@ var merge = function (processRequest, processResponse, path, response) {
 	if (response.templateConfig == "LOADING") { allLoaded = false; }
 	if (response.content == "LOADING") { allLoaded = false; }
 	if (response.masterPage == "LOADING") { allLoaded = false; }
+	if (response.codebehind == "LOADING") { allLoaded = false; }
 	//-- we have all files
 	if (allLoaded) {
 		//-- put master and template together
@@ -190,6 +228,12 @@ var merge = function (processRequest, processResponse, path, response) {
 		//-- merge in content
 		if (response.content != "NONE" && response.content != "LOADING") {
 			mergeContent($, processRequest, processResponse, path, response);
+		}
+		//-- execute codebehind
+		if (response.codebehind != "NONE" && response.codebehind != "LOADING") {
+			code = vm.createScript(response.codebehind);
+			code.runInThisContext();
+			codebehind($, path, response);
 		}
 		//-- mearg in data
 		mergeData($, processRequest, processResponse, path, response);
