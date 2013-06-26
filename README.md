@@ -1,8 +1,5 @@
 DHTMLPlus.node
 ==============
-
-DHTMLPlus for Azure
-
 DHTMLPlus is a HTML Template Framework built in nodeJS for Azure. It is designed to help Web Developers build websites quickly and intergrate nodeJS at thier own pace.
 
 DHTMLPlus uses HTML pages as templates and JSON files for content. Cheerio is used to merge in data and content serverside. Templates and content are 
@@ -18,14 +15,14 @@ node.js Packages
 Development Setup 
 -----------------
 In your code folder, create a file called dev.js
-```html
+```script
 exports.devKeys = {
 	"AZURE_STORAGE_ACCOUNT": "name here",
 	"AZURE_STORAGE_ACCESS_KEY":"key value here"
 };
 ```
 In your code folder, modify config.js for your environments
-```html
+```script
 exports.config = {
 	"LOCAL": {
 		endpoint: {
@@ -82,7 +79,7 @@ Server Side Code Behind
 -----------------------
 Code Behind lets you create server side script to execute on your templates.
 In the site template folder, create a js file with the same name as your template file. Example `home.js` for the code behind for `home.htm`
-```html
+```script
 var codebehind = function($, path, response) {
 	$("span.issues").html("ISSUES");
 };
