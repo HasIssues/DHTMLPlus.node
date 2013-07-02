@@ -31,12 +31,18 @@ http.createServer(function (req, res) {
 	var requestMethod = req.method;
 	var domain = "";
 	var subDomain = "";
-	var requestHostArray = requestHost.split(".");
-	if (requestHostArray.length == 2) {
-		domain = requestHostArray[0] + "." + requestHostArray[1];
-	} else {
-		domain = requestHostArray[requestHostArray.length - 2] + "." + requestHostArray[requestHostArray.length - 1];
-		subDomain = requestHostArray[0];
+	if (requestHost !== undefined) {
+		if (requestHost.indexOf(".") > 0) {
+			var requestHostArray = requestHost.split(".");
+			if (requestHostArray.length == 2) {
+				domain = requestHostArray[0] + "." + requestHostArray[1];
+			} else {
+				domain = requestHostArray[requestHostArray.length - 2] + "." + requestHostArray[requestHostArray.length - 1];
+				subDomain = requestHostArray[0];
+			}
+		} else {
+			console.log("Unable to process: " + requestHost);
+		}
 	}
 	//-- now lets respond to a request
 	var redirect = false;

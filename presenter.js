@@ -18,6 +18,17 @@ exports.presenter = function (req, res, domain, settings, useCloudData, configNa
 		}
 		res.writeHead(200, { 'Content-Type': 'text/html' });
 		res.end(sHTM);
+	} else if (requestURL == "/DHTMLPlus-content-edit.js") {
+		var fs = require("fs");
+		fs.readFile("./DHTMLPlus-content-edit.js", "utf8", function (err, data) {
+			if (err) {
+				res.writeHead(404, { 'Content-Type': "text/javascript", 'error': 'File Not Found.' });
+				res.end("OPPS");
+			} else {
+				res.writeHead(200, { 'Content-Type': "text/javascript" });
+				res.end(data);
+			}
+		});
 	} else {
 		template.templateDataMerge(req, res, domain, settings, useCloudData, configName);
 	}

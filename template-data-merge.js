@@ -25,14 +25,42 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 			var filePath = null;
 			var fileEncode = "utf8";
 			if (path.fileName.indexOf(".css") > 0) {
-				filePath = "css/" + path.fileName;
+				if (path.path.startsWith("/preview")) {
+					filePath = "." + path.path + "/" + path.fileName;
+				} else {
+					filePath = "css/" + path.fileName;
+				}
 				response.contentType = "text/css";
 			} else if (path.fileName.indexOf(".js") > 0) {
-				filePath = "scripts/" + path.fileName;
+				if (path.path.startsWith("/preview")) {
+					filePath = "." + path.path + "/" + path.fileName;
+				} else {
+					filePath = "scripts/" + path.fileName;
+				}
 				response.contentType = "text/javascript";
 			} else if (path.fileName.indexOf(".gif") > 0) {
-				filePath = "images/" + path.fileName;
+				if (path.path.startsWith("/preview")) {
+					filePath = "." + path.path + "/" + path.fileName;
+				} else {
+					filePath = "images/" + path.fileName;
+				}
 				response.contentType = "image/gif";
+				fileEncode = null;
+			} else if (path.fileName.indexOf(".png") > 0) {
+				if (path.path.startsWith("/preview")) {
+					filePath = "." + path.path + "/" + path.fileName;
+				} else {
+					filePath = "images/" + path.fileName;
+				}
+				response.contentType = "image/png";
+				fileEncode = null;
+			} else if (path.fileName.indexOf(".jpg") > 0) {
+				if (path.path.startsWith("/preview")) {
+					filePath = "." + path.path + "/" + path.fileName;
+				} else {
+					filePath = "images/" + path.fileName;
+				}
+				response.contentType = "image/jpg";
 				fileEncode = null;
 			}
 			//-- go get the file
@@ -58,7 +86,7 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 						}
 					);
 				} else {
-					filePath = templateDir + "/" + filePath;
+					if (!filePath.startsWith(".")) { filePath = templateDir + "/" + filePath; }
 					fs.readFile(filePath, fileEncode, function (err, data) {
 						if (verboseConsole) { console.log("RESPONSE: " + filePath); }
 						if (err) {
@@ -94,7 +122,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		blobService.getBlobToText(domain.replace(".", "-"), path.templateName, 
 			function (error, text, blockBlob) {
 				if (error == null) { response.template = text;} else { response.template = "NONE"; console.log("\n" + error); }
-				merge(processRequest, processResponse, path, response);
+				merge(processRequest, processResponse, path, response, configName);
 				var tQ = cheerio.load(response.template);
 				//-- do we have a master page
 				if (tQ("head").attr("masterPage") != null) {
@@ -106,19 +134,19 @@ var load = function (processRequest, processResponse, path, response, domain, se
 					);
 				} else {
 					response.masterPage = "NONE";
-					merge(processRequest, processResponse, path, response);
+					merge(processRequest, processResponse, path, response, configName);
 				}
 				//-- do we have codebehind
 				if (tQ("head").attr("codebehind") == "true") {
 					blobService.getBlobToText(domain.replace(".", "-"), path.templateName.replace(".htm", ".js"), 
 						function (error, text, blockBlob) {
 							if (error == null) { response.codebehind = text;} else { response.codebehind = "NONE"; console.log("\n"  + path.templateName.replace(".htm", ".js") + "\n" + error); }
-							merge(processRequest, processResponse, path, response);
+							merge(processRequest, processResponse, path, response, configName);
 						}
 					);
 				} else {
 					response.codebehind = "NONE";
-					merge(processRequest, processResponse, path, response);
+					merge(processRequest, processResponse, path, response, configName);
 				}
 			}
 		);
@@ -126,7 +154,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		blobService.getBlobToText(domain.replace(".", "-"), path.templateConfigName, 
 			function (error, text, blockBlob) {
 				if (error == null) { response.templateConfig = text;} else { response.templateConfig = "NONE"; console.log("\n" + path.templateConfigName + "\n" + error); }
-				merge(processRequest, processResponse, path, response);
+				merge(processRequest, processResponse, path, response, configName);
 			}
 		);
 		//-- load the content
@@ -139,7 +167,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		blobService.getBlobToText(domain.replace(".", "-"), contentFilePath, 
 			function (error, text, blockBlob) {
 				if (error == null) { response.content = text;} else { response.content = "NONE"; console.log("\n" + "content/" + path.contentFileName + "\n" + error); }
-				merge(processRequest, processResponse, path, response);
+				merge(processRequest, processResponse, path, response, configName);
 			}
 		);
 	} else {
@@ -150,7 +178,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 				if (err) {
 					response.template = "NONE";
 					response.masterPage = "NONE";
-					merge(processRequest, processResponse, path, response);
+					merge(processRequest, processResponse, path, response, configName);
 				} else {
 					response.template = data;
 					var tQ = cheerio.load(response.template);
@@ -159,24 +187,24 @@ var load = function (processRequest, processResponse, path, response, domain, se
 						fs.readFile(templateDir + "/" + tQ("head").attr("masterPage") + ".htm", "utf8",
 							function (err, data) {
 								if (err) { response.masterPage = "NONE"; } else { response.masterPage = data; }
-								merge(processRequest, processResponse, path, response);
+								merge(processRequest, processResponse, path, response, configName);
 							}
 						);
 					} else {
 						response.masterPage = "NONE";
-						merge(processRequest, processResponse, path, response);
+						merge(processRequest, processResponse, path, response, configName);
 					}
 					//-- do we have codebehind
 					if (tQ("head").attr("codebehind") == "true") {
 						fs.readFile(templateDir + "/" + path.templateName.replace(".htm", ".js"), "utf8",
 							function (err, data) {
 								if (err) { response.codebehind = "NONE"; } else { response.codebehind = data; }
-								merge(processRequest, processResponse, path, response);
+								merge(processRequest, processResponse, path, response, configName);
 							}
 						);
 					} else {
 						response.codebehind = "NONE";
-						merge(processRequest, processResponse, path, response);
+						merge(processRequest, processResponse, path, response, configName);
 					}
 				}
 			}
@@ -186,7 +214,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 			function (err, data) {
 				if (verboseConsole) { console.log("TEMPLATE: " + path.templateConfigName); }
 				if (err) { response.templateConfig = "NONE"; } else { response.templateConfig = data; }
-				merge(processRequest, processResponse, path, response);
+				merge(processRequest, processResponse, path, response, configName);
 			}
 		);
 		//-- load the content json file
@@ -200,13 +228,13 @@ var load = function (processRequest, processResponse, path, response, domain, se
 			function (err, data) {
 				if (verboseConsole) { console.log("TEMPLATE: " + path.contentFileName); }
 				if (err) { response.content = "NONE"; } else { response.content = data; }
-				merge(processRequest, processResponse, path, response);
+				merge(processRequest, processResponse, path, response, configName);
 			}
 		);
 	}
 };
 
-var merge = function (processRequest, processResponse, path, response) {
+var merge = function (processRequest, processResponse, path, response, configName) {
 	var allLoaded = true;
 	//-- reasons to wait
 	if (response.template == "LOADING") {allLoaded = false; }
@@ -237,13 +265,16 @@ var merge = function (processRequest, processResponse, path, response) {
 		}
 		//-- mearg in data
 		mergeData($, processRequest, processResponse, path, response);
-
-		//-- clear content edit
-		var stringHTM = $.html();
-		stringHTM = stringHTM.replace(/contenteditable="true"/g, " ");
+		//-- content edit
+		var stringHTM;
+		if (configName == "LOCAL") {
+			$("head").append("<script type=\"text/javascript\" src=\"/DHTMLPlus-content-edit.js\"></script>");
+		} else {
+			$("*").removeAttr("contentEditable");
+		}
 		//-- all done
 		processResponse.writeHead(response.statusCode, { 'Content-Type': response.contentType });
-		processResponse.end(stringHTM);
+		processResponse.end("<!DOCTYPE HTML>\n" + $.html());
 	}
 };
 
@@ -327,6 +358,9 @@ var parseURL = function (processRequest, path, response) {
 	path.templateConfigName = path.templateName.replace(".htm", ".js");
 };
 
-String.prototype.endsWith = function(suffix) {
-	return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
+String.prototype.endsWith = function(suffix) { return this.indexOf(suffix, this.length - suffix.length) !== -1; };
+String.prototype.endsWith = function(str) {return (this.match(str+"$")==str)};
+String.prototype.startsWith = function(str) {return (this.match("^"+str)==str)};
+String.prototype.trim = function() { return (this.replace(/^[\s\xA0]+/, "").replace(/[\s\xA0]+$/, "")) };
+String.prototype.toProperCase = function() {return this.toLowerCase().replace(/^(.)|\s(.)/g,function($1) { return $1.toUpperCase(); });};
+
