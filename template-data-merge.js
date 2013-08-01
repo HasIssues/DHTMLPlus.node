@@ -282,7 +282,7 @@ var merge = function (processRequest, processResponse, path, response, configNam
 		}
 		//-- all done
 		processResponse.writeHead(response.statusCode, { 'Content-Type': response.contentType });
-		processResponse.end("<!DOCTYPE HTML>\n" + $.html());
+		processResponse.end("<!DOCTYPE HTML>\n" + $.html() + "Running Node Version " + process.versions.node);
 	}
 };
 

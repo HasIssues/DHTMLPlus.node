@@ -13,7 +13,7 @@ var configName = "LOCAL";
 var numCPUs = require("os").cpus().length;
 var machineName = os.hostname().toUpperCase();
 var port = 80;
-var useCloudData = false; //-- change to true to run local against cloud resources
+var useCloudData = true; //-- change to true to run local against cloud resources
 
 //-- are we in Azure or IIS
 if (process.env.PORT != undefined) {
