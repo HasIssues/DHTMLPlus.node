@@ -16,9 +16,13 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 		var pub = require("./template-push-to-blob.js");
 		pub.publishTemplates(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 	} else {
-		if (path.fileName.indexOf(".htm") > 0) {
+		if (path.fileName.endsWith(".htm") && !path.path.startsWith("/preview")) {
 			console.log("REQUEST: " + domain + processRequest.url);
 			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
+		} else if (path.fileName.endsWith(".content")) {
+			var cm = require("./content-management.js");
+			console.log("CONTENT EDIT: " + domain + processRequest.url);
+			cm.contentManagement(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 		} else {
 			if (verboseConsole) { console.log("REQUEST: " + path.fileName); }
 			//-- static files
@@ -31,6 +35,9 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 					filePath = "css/" + path.fileName;
 				}
 				response.contentType = "text/css";
+			} else if (path.fileName.indexOf(".htm") > 0 && path.path.startsWith("/preview")) {
+				filePath = "." + path.path + "/" + path.fileName;
+				response.contentType = "text/html";
 			} else if (path.fileName.indexOf(".js") > 0) {
 				if (path.path.startsWith("/preview")) {
 					filePath = "." + path.path + "/" + path.fileName;
@@ -269,6 +276,7 @@ var merge = function (processRequest, processResponse, path, response, configNam
 		var stringHTM;
 		if (configName == "LOCAL") {
 			$("head").append("<script type=\"text/javascript\" src=\"/DHTMLPlus-content-edit.js\"></script>");
+			$("head").append("<link rel=\"stylesheet\" type=\"text/css\" href=\"/DHTMLPlus-content-edit.css\"/>");
 		} else {
 			$("*").removeAttr("contentEditable");
 		}
@@ -359,7 +367,6 @@ var parseURL = function (processRequest, path, response) {
 };
 
 String.prototype.endsWith = function(suffix) { return this.indexOf(suffix, this.length - suffix.length) !== -1; };
-String.prototype.endsWith = function(str) {return (this.match(str+"$")==str)};
 String.prototype.startsWith = function(str) {return (this.match("^"+str)==str)};
 String.prototype.trim = function() { return (this.replace(/^[\s\xA0]+/, "").replace(/[\s\xA0]+$/, "")) };
 String.prototype.toProperCase = function() {return this.toLowerCase().replace(/^(.)|\s(.)/g,function($1) { return $1.toUpperCase(); });};

@@ -1,16 +1,16 @@
-var http = require('http');
-var https = require('https');
-var fs = require('fs');
+var http = null;
+var fs = require("fs");
 var os = require("os");
 var cheerio = require("cheerio");
 var azure = require('azure');
 
 //-- includes
-var settings = require('./config.js');
-var content = require('./presenter.js');
+var settings = require("./config.js");
+var content = require("./presenter.js");
 
 //-- vars
 var configName = "LOCAL";
+var numCPUs = require("os").cpus().length;
 var machineName = os.hostname().toUpperCase();
 var port = 80;
 var useCloudData = false; //-- change to true to run local against cloud resources
@@ -20,10 +20,14 @@ if (process.env.PORT != undefined) {
 	configName = "AZURE";
 	port = process.env.PORT || 1337;
 	useCloudData = true;
+	http = require("http");
+} else {
+	http = require("http");
+	//http = require("httpsys").http();
 }
 
 //-- HTTP Server for redirect
-http.createServer(function (req, res) {
+var server = http.createServer(function (req, res) {
 	var requestHost = req.headers.host; 
 	var requestReferer = req.headers.referer;
 	var requestHttpVersion = req.httpVersion;
@@ -75,7 +79,27 @@ http.createServer(function (req, res) {
 			console.log("NOT HOSTED: " + domain + " REFERER: " + requestReferer);
 		}
 	}
-}).listen(port);
-
-//-- Ready and Listening
-console.log(configName + " Config used and Listening on port " + port + " on machine " + machineName  + ".");
+});
+if (configName == "LOCAL") {
+	var cluster = require("cluster");
+	if (cluster.isMaster) {
+		console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
+		console.log("Running Node Version " + process.versions.node);
+		// Fork workers. one less then max cpu count
+		for (var i = 1; i < numCPUs; i++) { cluster.fork(); }
+		cluster.on("exit", function(worker, code, signal) {
+			var exitCode = worker.process.exitCode;
+			console.log("worker " + worker.process.pid + " died ('+exitCode+'). restarting...");
+			cluster.fork();
+		});
+		cluster.on('listening', function(worker, address) {
+			console.log("Worker " + worker.process.pid + " listing  on " + address.port);
+		});
+	} else {
+		// Workers can share any TCP connection, In this case its a HTTP server
+		//server.listen("http://*:80/");
+		server.listen(port);
+	}
+} else {
+	server.listen(port);
+}

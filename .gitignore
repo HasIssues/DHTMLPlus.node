@@ -167,3 +167,6 @@ pip-log.txt
 #############
 templates
 dev.js
+
+/server.js.logs
+/App_Data

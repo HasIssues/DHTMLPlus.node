@@ -29,6 +29,17 @@ exports.presenter = function (req, res, domain, settings, useCloudData, configNa
 				res.end(data);
 			}
 		});
+	} else if (requestURL == "/DHTMLPlus-content-edit.css") {
+		var fs = require("fs");
+		fs.readFile("./DHTMLPlus-content-edit.css", "utf8", function (err, data) {
+			if (err) {
+				res.writeHead(404, { 'Content-Type': "text/css", 'error': 'File Not Found.' });
+				res.end("OPPS");
+			} else {
+				res.writeHead(200, { 'Content-Type': "text/css" });
+				res.end(data);
+			}
+		});
 	} else {
 		template.templateDataMerge(req, res, domain, settings, useCloudData, configName);
 	}
