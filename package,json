@@ -1,4 +1,4 @@
 "scripts": {
 	"start": "node server.js",
-	"engines":{"node": "0.6.22 || 0.10.15"}
+	"engines":{"node": "0.10.15 || 0.8.4"}
 }
