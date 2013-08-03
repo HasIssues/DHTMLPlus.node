@@ -13,8 +13,8 @@ var configName = "LOCAL";
 var numCPUs = require("os").cpus().length;
 var machineName = os.hostname().toUpperCase();
 var port = 80;
-var useCloudData = false; //-- change to true to run local against cloud resources
-var useWorkers = true;
+var useCloudData = false;
+var useCluster = false;
 
 //-- are we in Azure or IIS
 if (process.env.PORT != undefined) {
@@ -23,8 +23,13 @@ if (process.env.PORT != undefined) {
 	useCloudData = true;
 	http = require("http");
 } else {
-	http = require("http");
 	//http = require("httpsys").http();
+	http = require("http");
+	var dev = require("./dev.js");
+	//-- these are set in dev.js
+	port = dev.devKeys["port"];
+	useCloudData = dev.devKeys["useCloudData"];
+	useCluster = dev.devKeys["useCluster"];
 }
 
 //-- HTTP Server for redirect
@@ -81,7 +86,7 @@ var server = http.createServer(function (req, res) {
 		}
 	}
 });
-if (configName == "LOCAL" && useWorkers) {
+if (configName == "LOCAL" && useCluster) {
 	var cluster = require("cluster");
 	if (cluster.isMaster) {
 		console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");

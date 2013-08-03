@@ -4,7 +4,7 @@ var fs = require("fs");
 var xml = require("node-xml");
 var vm = require("vm");
 
-var verboseConsole = true;
+var verboseConsole = false;
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
 	var path = { params: null, fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
@@ -132,7 +132,8 @@ var load = function (processRequest, processResponse, path, response, domain, se
 				merge(processRequest, processResponse, path, response, configName);
 				var tQ = cheerio.load(response.template);
 				//-- do we have a master page
-				if (tQ("head").attr("masterPage") != null) {
+				if (tQ("head").attr("masterpage") != null) {
+					if (verboseConsole) { console.log(tQ("head").attr("masterpage") + ".htm Master Page for " + path.templateName); }
 					blobService.getBlobToText(domain.replace(".", "-"), tQ("head").attr("masterpage") + ".htm", 
 						function (error, text, blockBlob) {
 							if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n"  + tQ("head").attr("masterpage") + ".htm" + "\n" + error); }
@@ -140,6 +141,7 @@ var load = function (processRequest, processResponse, path, response, domain, se
 						}
 					);
 				} else {
+					if (verboseConsole) { console.log("No Master Page for " + path.templateName); }
 					response.masterPage = "NONE";
 					merge(processRequest, processResponse, path, response, configName);
 				}
