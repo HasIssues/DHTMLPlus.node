@@ -4,7 +4,7 @@ var fs = require("fs");
 var xml = require("node-xml");
 var vm = require("vm");
 
-var verboseConsole = false;
+var verboseConsole = true;
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
 	var path = { params: null, fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
@@ -133,9 +133,9 @@ var load = function (processRequest, processResponse, path, response, domain, se
 				var tQ = cheerio.load(response.template);
 				//-- do we have a master page
 				if (tQ("head").attr("masterPage") != null) {
-					blobService.getBlobToText(domain.replace(".", "-"), tQ("head").attr("masterPage") + ".htm", 
+					blobService.getBlobToText(domain.replace(".", "-"), tQ("head").attr("masterpage") + ".htm", 
 						function (error, text, blockBlob) {
-							if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n"  + tQ("head").attr("masterPage") + ".htm" + "\n" + error); }
+							if (error == null) { response.masterPage = text;} else { response.masterPage = "NONE"; console.log("\n"  + tQ("head").attr("masterpage") + ".htm" + "\n" + error); }
 							merge(processRequest, processResponse, path, response);
 						}
 					);
@@ -190,8 +190,8 @@ var load = function (processRequest, processResponse, path, response, domain, se
 					response.template = data;
 					var tQ = cheerio.load(response.template);
 					//-- do we have a master page
-					if (tQ("head").attr("masterPage") != null) {
-						fs.readFile(templateDir + "/" + tQ("head").attr("masterPage") + ".htm", "utf8",
+					if (tQ("head").attr("masterpage") != null) {
+						fs.readFile(templateDir + "/" + tQ("head").attr("masterpage") + ".htm", "utf8",
 							function (err, data) {
 								if (err) { response.masterPage = "NONE"; } else { response.masterPage = data; }
 								merge(processRequest, processResponse, path, response, configName);
