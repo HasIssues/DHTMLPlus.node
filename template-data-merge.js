@@ -16,11 +16,16 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 		var pub = require("./template-push-to-blob.js");
 		pub.publishTemplates(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 	} else {
-		if (path.fileName.endsWith(".mp4") || path.fileName.endsWith(".avi") || path.fileName.endsWith(".mkv") || path.fileName.endsWith(".webm")) {
+		if (path.fileName.endsWith(".mp4")) {
 			//-- stream vidio using ffmpeg
 			var v = require("./video-stream.js");
 			console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
 			v.streamMP4(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
+		} else if (path.fileName.endsWith(".avi") || path.fileName.endsWith(".mkv") || path.fileName.endsWith(".webm") || path.fileName.endsWith(".mpg") || path.fileName.endsWith(".m4v")) {
+			//-- stream vidio using ffmpeg
+			var v = require("./video-stream.js");
+			console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
+			v.transcodeStream(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 		} else if (path.fileName.endsWith(".htm") && !path.path.startsWith("/preview")) {
 			console.log("REQUEST [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + processRequest.url);
 			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
