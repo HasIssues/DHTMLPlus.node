@@ -5,7 +5,7 @@ var fs = require("fs");
 
 //-- settings
 var settings = require('./config.js');
-var dev = require("./dev.js");
+var local = require("./local.js");
 
 exports.publishTemplates = function (processRequest, processResponse, path, response, domain, settings, useCloudData, configName) {
 	if (configName == "LOCAL") {
@@ -51,7 +51,7 @@ var walk = function(dir, domain, baseDir, done) {
 					if (!file.endsWith("/Thumbs.db")) {
 						results.push(file.substring(baseDir.length + 1));
 						//-- upload file
-						var blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
+						var blobService = azure.createBlobService(local.localKeys["AZURE_STORAGE_ACCOUNT"], local.localKeys["AZURE_STORAGE_ACCESS_KEY"]);
 						blobService.createBlockBlobFromFile(domain.replace(".", "-"), file.substring(baseDir.length + 1), file,
 							function (err) {
 								if (err) { results.push("ERROR: " + file.substring(baseDir.length + 1)); }

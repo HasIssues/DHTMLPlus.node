@@ -25,11 +25,11 @@ if (process.env.PORT != undefined) {
 } else {
 	//http = require("httpsys").http();
 	http = require("http");
-	var dev = require("./dev.js");
-	//-- these are set in dev.js
-	port = dev.devKeys["port"];
-	useCloudData = dev.devKeys["useCloudData"];
-	useCluster = dev.devKeys["useCluster"];
+	var local = require("./local.js");
+	//-- these are set in local.js
+	port = local.localKeys["port"];
+	useCloudData = local.localKeys["useCloudData"];
+	useCluster = local.localKeys["useCluster"];
 }
 
 //-- HTTP Server for redirect
@@ -95,11 +95,11 @@ if (configName == "LOCAL" && useCluster) {
 		for (var i = 1; i < numCPUs; i++) { cluster.fork(); }
 		cluster.on("exit", function(worker, code, signal) {
 			var exitCode = worker.process.exitCode;
-			console.log("worker " + worker.process.pid + " died ('+exitCode+'). restarting...");
+			console.log("worker " + worker.process.pid + " died (" + exitCode + "). restarting...");
 			cluster.fork();
 		});
 		cluster.on('listening', function(worker, address) {
-			console.log("Worker " + worker.process.pid + " listing  on " + address.port);
+			console.log("Worker " + worker.process.pid + " listening  on " + address.port);
 		});
 	} else {
 		// Workers can share any TCP connection, In this case its a HTTP server

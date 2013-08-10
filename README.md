@@ -18,15 +18,40 @@ node.js Packages
 `cheerio`
 `connect`
 `express`
+`fluent-ffmpeg`
+`node-xml`
 
 Development Setup 
 -----------------
-In your code folder, create a file called dev.js
+In your code folder, create a file called local.js
 ```Javascript
 exports.devKeys = {
 	"AZURE_STORAGE_ACCOUNT": "name here",
-	"AZURE_STORAGE_ACCESS_KEY":"key value here"
+	"AZURE_STORAGE_ACCESS_KEY":"key value here",
+	"port": 80,
+	"useCloudData": false,
+	"useCluster": true
 };
+/* settings for video streaming */
+exports.video = {
+	settings: {
+
+	},
+	transcode: {
+		"mp4": "mp4",
+		"avi": "webm",
+		"mkv": "webm",
+		"mkv": "webm",
+		"m4v": "webm"
+	},
+	paths: {
+		"movies": "M:/Movies",
+		"movies-own": "M:/Movies-OWN",
+		"movies-cam": "M:/Movies-CAM",
+		"movies-3d": "M:/Movies-3D"
+	}
+};
+
 ```
 In your code folder, modify config.js for your environments
 ```Javascript

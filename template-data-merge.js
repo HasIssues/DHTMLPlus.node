@@ -9,22 +9,27 @@ var verboseConsole = false;
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
 	var path = { params: null, fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
 	var response = { statusCode: 500, contentType: "text/html", template: "LOADING", templateConfig: "LOADING", content: "LOADING", masterPage: "LOADING", codebehind: "LOADING", data: "", html: "" };
-	response.html = "<h1>No Content Found for " + domain + ".</h1>";
+	response.html = "<h1>No Content Found for " + processRequest.headers.host + ".</h1>";
 	templateDir = "templates/" + domain.replace(".", "-");
 	parseURL(processRequest, path, response);
 	if (path.fileName == "publish.htm" && configName == "LOCAL") {
 		var pub = require("./template-push-to-blob.js");
 		pub.publishTemplates(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 	} else {
-		if (path.fileName.endsWith(".htm") && !path.path.startsWith("/preview")) {
-			console.log("REQUEST: " + domain + processRequest.url);
+		if (path.fileName.endsWith(".mp4") || path.fileName.endsWith(".avi") || path.fileName.endsWith(".mkv") || path.fileName.endsWith(".webm")) {
+			//-- stream vidio using ffmpeg
+			var v = require("./video-stream.js");
+			console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
+			v.streamMP4(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
+		} else if (path.fileName.endsWith(".htm") && !path.path.startsWith("/preview")) {
+			console.log("REQUEST [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + processRequest.url);
 			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 		} else if (path.fileName.endsWith(".content")) {
 			var cm = require("./content-management.js");
-			console.log("CONTENT EDIT: " + domain + processRequest.url);
+			console.log("CONTENT EDIT: " + processRequest.headers.host + processRequest.url);
 			cm.contentManagement(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 		} else {
-			if (verboseConsole) { console.log("REQUEST: " + path.fileName); }
+			if (verboseConsole) { console.log("REQUEST [" + (new Date().toDateString()) + "]: " + path.fileName); }
 			//-- static files
 			var filePath = null;
 			var fileEncode = "utf8";
@@ -76,8 +81,8 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 					var blobService = null;
 					if (configName == "LOCAL") {
 						//-- do this to run local but use cloud storage
-						var dev = require("./dev.js");
-						blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
+						var local = require("./local.js");
+						blobService = azure.createBlobService(local.localKeys["AZURE_STORAGE_ACCOUNT"], local.localKeys["AZURE_STORAGE_ACCESS_KEY"]);
 					} else {
 						//-- get access keys from IIS in Azure 
 						blobService = azure.createBlobService();
@@ -119,8 +124,8 @@ var load = function (processRequest, processResponse, path, response, domain, se
 		var blobService = null;
 		if (configName == "LOCAL") {
 			//-- do this to run local but use cloud storage
-			var dev = require("./dev.js");
-			blobService = azure.createBlobService(dev.devKeys["AZURE_STORAGE_ACCOUNT"], dev.devKeys["AZURE_STORAGE_ACCESS_KEY"]);
+			var local = require("./local.js");
+			blobService = azure.createBlobService(local.localKeys["AZURE_STORAGE_ACCOUNT"], local.localKeys["AZURE_STORAGE_ACCESS_KEY"]);
 		} else {
 			//-- get access keys from IIS in Azure 
 			blobService = azure.createBlobService();
