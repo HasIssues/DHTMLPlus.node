@@ -2,6 +2,7 @@ var local = require("./local.js");
 var fs = require("fs");
 var ffmpeg = require('fluent-ffmpeg');
 var util = require("util");
+var index = require("./video-index.js");
 
 exports.streamMP4 = function (processRequest, processResponse, path, response, domain, settings, useCloudData, configName) {
 	var sourceFile = local.video.paths[path.path.substring(1)] +"/" + unescape(path.fileName);
@@ -35,6 +36,7 @@ exports.streamMP4 = function (processRequest, processResponse, path, response, d
 };
 
 exports.transcodeStream = function (processRequest, processResponse, path, response, domain, settings, useCloudData, configName) {
+	//-- https://ustream.zendesk.com/entries/22962268-Encoding-Specs-and-Stream-Settings#video content
 	var streamFormat = "webm";
 	var sourceFile = local.video.paths[path.path.substring(1)] +"/" + unescape(path.fileName);
 	var videoInfo = null;

@@ -14,12 +14,14 @@ Guides / How-to's
 
 node.js Packages
 ----------------
+use `npm install`
 `azure`
 `cheerio`
 `connect`
 `express`
 `fluent-ffmpeg`
 `node-xml`
+`node-uuid`
 
 Development Setup 
 -----------------
@@ -35,7 +37,41 @@ exports.devKeys = {
 /* settings for video streaming */
 exports.video = {
 	settings: {
-
+		"AZURE_STORAGE_ACCOUNT": "name here",
+		"AZURE_STORAGE_ACCESS_KEY":"key value here",
+		tmdbApiKey: "key value here",
+		template : {
+			PartitionKey : "movie",
+			RowKey: 0,
+			update: false,
+			own: false,
+			MyDb: "0",
+			TMDb: 0,
+			IMDb: "",
+			popularity: 0,
+			adult: false,
+			name: "",
+			nameSort: "",
+			type: "",
+			overview: "",
+			rating: "",
+			certification: "",
+			url: "",
+			released: "",
+			runtime: "",
+			homepage: "",
+			poster: "/images/no-poster.jpg",
+			backdrop: "",
+			tagline: "",
+			collection: {},
+			categories: {},
+			keywords: {},
+			cast: {},
+			backdrops: {},
+			filePath: "",
+			virtualPath: "",
+			file: ""
+		}
 	},
 	transcode: {
 		"mp4": "mp4",
@@ -46,9 +82,11 @@ exports.video = {
 	},
 	paths: {
 		"movies": "M:/Movies",
-		"movies-own": "M:/Movies-OWN",
-		"movies-cam": "M:/Movies-CAM",
 		"movies-3d": "M:/Movies-3D"
+	},
+	pathTypes: {
+		"movies": "movie",
+		"movies-3d": "movie-3D"
 	}
 };
 
