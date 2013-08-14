@@ -1,9 +1,8 @@
 var cheerio = require("cheerio");
 var azure = require('azure');
-var fs = require("fs");
 var xml = require("node-xml");
 var vm = require("vm");
-var local = require("./local.js");
+var fs = require("fs");
 
 var verboseConsole = false;
 
@@ -27,30 +26,36 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 			var v = require("./video-stream.js");
 			console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
 			v.transcodeStream(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
-		} else if (path.fileName == "video.index" && "video" in local && configName == "LOCAL") {
-			//-- use DHTMLPlus video and azure
-			var tableService = azure.createTableService(local.video.settings["AZURE_STORAGE_ACCOUNT"], local.video.settings["AZURE_STORAGE_ACCESS_KEY"]);
-			tableService.createTableIfNotExists("movies", function(error) { if(error) { console.log("Create Azure Table: " + error); } });
-			var v = require("./video-index.js");
-			processResponse.writeHead(200, { "Content-Type": "text/html" });
-			var skip = 0;
-			var fileCount = 1;
-			for (var attr in local.video.paths) {
-				processResponse.write("<b>" + attr + "</b><br/>\n");
-				var pathType = local.video.pathTypes[attr];
-				var files = fs.readdirSync(local.video.paths[attr]);
-				for (var i in files) {
-					var f = files[i];
-					if (f.endsWith (".mp4") || f.endsWith(".avi") || f.endsWith(".mkv") || f.endsWith(".webm") || f.endsWith(".mpg") || f.endsWith(".m4v")) {
-						if (fileCount > skip) {
-							processResponse.write("<b>" + fileCount + "</b>:<i>" + f + "</i><br/>\n");
-							v.update(tableService, unescape(f), local.video.paths[attr] +"/", pathType, processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
+		} else if (path.fileName == "video.index" && configName == "LOCAL") {
+			var local = require("./local.js");
+			if ("video" in local) {
+				//-- use DHTMLPlus video and azure
+				var tableService = azure.createTableService(local.video.settings["AZURE_STORAGE_ACCOUNT"], local.video.settings["AZURE_STORAGE_ACCESS_KEY"]);
+				tableService.createTableIfNotExists("movies", function(error) { if(error) { console.log("Create Azure Table: " + error); } });
+				var v = require("./video-index.js");
+				processResponse.writeHead(200, { "Content-Type": "text/html" });
+				var skip = 0;
+				var fileCount = 1;
+				for (var attr in local.video.paths) {
+					processResponse.write("<b>" + attr + "</b><br/>\n");
+					var pathType = local.video.pathTypes[attr];
+					var files = fs.readdirSync(local.video.paths[attr]);
+					for (var i in files) {
+						var f = files[i];
+						if (f.endsWith (".mp4") || f.endsWith(".avi") || f.endsWith(".mkv") || f.endsWith(".webm") || f.endsWith(".mpg") || f.endsWith(".m4v")) {
+							if (fileCount > skip) {
+								processResponse.write("<b>" + fileCount + "</b>:<i>" + f + "</i><br/>\n");
+								v.update(tableService, unescape(f), local.video.paths[attr] +"/", pathType, processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
+							}
+							fileCount++;
 						}
-						fileCount++;
 					}
 				}
+				console.log("Indexing " + fileCount + " Video Files.");
+			} else {
+				processResponse.writeHead(200, { "Content-Type": "text/html" });
+				processResponse.end("Video Prossing not available in cloud.");
 			}
-			console.log("Indexing " + fileCount + " Video Files.");
 		} else if (path.fileName.endsWith(".htm") && !path.path.startsWith("/preview")) {
 			console.log("REQUEST [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + processRequest.url);
 			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
@@ -303,7 +308,12 @@ var merge = function (processRequest, processResponse, path, response, configNam
 		if (response.codebehind != "NONE" && response.codebehind != "LOADING") {
 			code = vm.createScript(response.codebehind);
 			code.runInThisContext();
-			codebehind($, path, response, local, fs);
+			if (configName == "LOCAL") {
+				var local = require("./local.js");
+				codebehind($, path, response, local, fs);
+			} else {
+				codebehind($, path, response, null, fs);
+			}
 		}
 		//-- mearg in data
 		mergeData($, processRequest, processResponse, path, response);
