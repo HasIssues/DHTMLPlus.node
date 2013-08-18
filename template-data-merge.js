@@ -1,10 +1,14 @@
 var cheerio = require("cheerio");
-var azure = require('azure');
+var azure = require("azure");
 var xml = require("node-xml");
 var vm = require("vm");
 var fs = require("fs");
 
 var verboseConsole = false;
+
+exports.getDataAsync = function (connection, configName) {
+
+};
 
 exports.templateDataMerge = function (processRequest, processResponse, domain, settings, useCloudData, configName) {
 	var path = { params: null, fileName: "", templateName: "", templateConfigName: "", contentFileName: "", path: "", querystring: "", pagePath: "", isBlog: false };
@@ -26,26 +30,27 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 			var v = require("./video-stream.js");
 			console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
 			v.transcodeStream(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
-		} else if (path.fileName == "video.index" && configName == "LOCAL") {
+		} else if (path.fileName == "video.index" && configName === "LOCAL") {
+			console.log(configName + ":" + path.fileName);
 			var local = require("./local.js");
 			if ("video" in local) {
 				//-- use DHTMLPlus video and azure
 				var tableService = azure.createTableService(local.video.settings["AZURE_STORAGE_ACCOUNT"], local.video.settings["AZURE_STORAGE_ACCESS_KEY"]);
 				tableService.createTableIfNotExists("movies", function(error) { if(error) { console.log("Create Azure Table: " + error); } });
-				var v = require("./video-index.js");
+				var video = require("./video-index.js");
 				processResponse.writeHead(200, { "Content-Type": "text/html" });
-				var skip = 0;
+				var startIndex = "start" in path.params ? path.params.start : 0;
+				var endIndex = "end" in path.params ? path.params.end : 9999;
 				var fileCount = 1;
 				for (var attr in local.video.paths) {
-					processResponse.write("<b>" + attr + "</b><br/>\n");
 					var pathType = local.video.pathTypes[attr];
 					var files = fs.readdirSync(local.video.paths[attr]);
 					for (var i in files) {
 						var f = files[i];
 						if (f.endsWith (".mp4") || f.endsWith(".avi") || f.endsWith(".mkv") || f.endsWith(".webm") || f.endsWith(".mpg") || f.endsWith(".m4v")) {
-							if (fileCount > skip) {
-								processResponse.write("<b>" + fileCount + "</b>:<i>" + f + "</i><br/>\n");
-								v.update(tableService, unescape(f), local.video.paths[attr] +"/", pathType, processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
+							if (fileCount >= startIndex && fileCount <= endIndex) {
+								processResponse.write("<b>" + fileCount + "</b>:<i>" + local.video.paths[attr] + "/" + f + "</i><br/>\n");
+								video.videoIndexUpdate(tableService, unescape(f), local.video.paths[attr] +"/", pathType, processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
 							}
 							fileCount++;
 						}
@@ -310,24 +315,33 @@ var merge = function (processRequest, processResponse, path, response, configNam
 			code.runInThisContext();
 			if (configName == "LOCAL") {
 				var local = require("./local.js");
-				codebehind($, path, response, local, fs);
+				var dataServices = require("./data-services.js");
+				codebehind($, path, response, local, fs, dataServices, processResponse);
 			} else {
-				codebehind($, path, response, null, fs);
+				codebehind($, path, response, null, fs, null, processResponse);
 			}
 		}
-		//-- mearg in data
-		mergeData($, processRequest, processResponse, path, response);
-		//-- content edit
-		var stringHTM;
-		if (configName == "LOCAL") {
-			$("head").append("<script type=\"text/javascript\" src=\"/DHTMLPlus-content-edit.js\"></script>");
-			$("head").append("<link rel=\"stylesheet\" type=\"text/css\" href=\"/DHTMLPlus-content-edit.css\"/>");
+		if ($("head[async='true']").length > 0) {
+			//-- response end handled by codebehind
 		} else {
-			$("*").removeAttr("contentEditable");
+			//-- mearg in data
+			mergeData($, processRequest, processResponse, path, response);
+			//-- content edit
+			var stringHTM;
+			if (configName == "LOCAL") {
+				$("head").append("<script type=\"text/javascript\" src=\"/DHTMLPlus-content-edit.js\"></script>");
+				$("head").append("<link rel=\"stylesheet\" type=\"text/css\" href=\"/DHTMLPlus-content-edit.css\"/>");
+			} else {
+				$("*").removeAttr("contentEditable");
+			}
+			//-- all done
+			processResponse.writeHead(response.statusCode, { 'Content-Type': response.contentType });
+			if ($("head[fullpage='false']").length > 0) {
+				processResponse.end($("body").html());
+			} else {
+				processResponse.end("<!DOCTYPE HTML>\n" + $.html() + "Running Node Version " + process.versions.node);
+			}
 		}
-		//-- all done
-		processResponse.writeHead(response.statusCode, { 'Content-Type': response.contentType });
-		processResponse.end("<!DOCTYPE HTML>\n" + $.html() + "Running Node Version " + process.versions.node);
 	}
 };
 
