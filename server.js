@@ -1,16 +1,15 @@
 var http = null;
+var azure = null;
 var fs = require("fs");
 var os = require("os");
-var cheerio = require("cheerio");
-var azure = require('azure');
-
-//-- includes
+var local = require("./local.js");
 var settings = require("./config.js");
-var content = require("./presenter.js");
+var content = require("dhtmlplus");
+//var content = require("../dhtmlplus/index.js");
 
 //-- vars
 var configName = "LOCAL";
-var numCPUs = require("os").cpus().length;
+var numCPUs = os.cpus().length;
 var machineName = os.hostname().toUpperCase();
 var port = 80;
 var useCloudData = false;
@@ -18,18 +17,22 @@ var useCluster = false;
 
 //-- are we in Azure or IIS
 if (process.env.PORT != undefined) {
+	http = require("http");
+	azure = require("azure");
 	configName = "AZURE";
 	port = process.env.PORT || 1337;
 	useCloudData = true;
-	http = require("http");
 } else {
-	//http = require("httpsys").http();
-	http = require("http");
-	var local = require("./local.js");
+	local = require("./local.js");
 	//-- these are set in local.js
 	port = local.localKeys["port"];
 	useCloudData = local.localKeys["useCloudData"];
 	useCluster = local.localKeys["useCluster"];
+	if (useCluster) {
+		http = require("http");
+	} else {
+		http = require("httpsys").http();
+	}
 }
 
 //-- HTTP Server for redirect
@@ -74,8 +77,20 @@ var server = http.createServer(function (req, res) {
 		res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
 		res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
 	} else if (hosted) {
-		//-- process request
-		content.presenter(req, res, domain, settings.config[configName], useCloudData, configName);
+		if ("auth" in settings.config[configName].endpoint[domain]) {
+			if (settings.config[configName].endpoint[domain].auth != "none") {
+				//-- BASED ON: http://www.sitepoint.com/http-authentication-in-node-js/
+				var auth = require("http-auth");
+				var authConfig = auth({ authRealm: domain, authFile: "./" + settings.config[configName].endpoint[domain].auth + "-htpasswd", authType: settings.config[configName].endpoint[domain].auth });
+				authConfig.apply(req, res, function (username) {
+					//-- process request with security
+					content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, username, local);
+				});
+			}
+		} else {
+			//-- process request without security
+			content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, "", local);
+		}
 	} else {
 		//-- not processed
 		res.end();
@@ -92,7 +107,7 @@ if (configName == "LOCAL" && useCluster) {
 		console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
 		console.log("Running Node Version " + process.versions.node);
 		// Fork workers. one less then max cpu count
-		for (var i = 1; i < numCPUs; i++) { cluster.fork(); }
+		for (var i = 1; i <= numCPUs; i++) { cluster.fork(); }
 		cluster.on("exit", function(worker, code, signal) {
 			var exitCode = worker.process.exitCode;
 			console.log("worker " + worker.process.pid + " died (" + exitCode + "). restarting...");
@@ -103,8 +118,28 @@ if (configName == "LOCAL" && useCluster) {
 		});
 	} else {
 		// Workers can share any TCP connection, In this case its a HTTP server
-		//server.listen("http://*:80/");
 		server.listen(port);
+	}
+} else if (configName == "LOCAL" && !useCluster) {
+	for (var domain in settings.config.LOCAL.endpoint) {
+		var webServerAddress = "http://";
+		if (settings.config.LOCAL.endpoint[domain].subDomain == "") {
+			webServerAddress += domain + ":" + settings.config.LOCAL.endpoint[domain].port + "/";
+		} else {
+			webServerAddress += settings.config.LOCAL.endpoint[domain].subDomain + "." + domain + ":" + settings.config.LOCAL.endpoint[domain].port + "/";
+		}
+		console.log("WEB SERVER: " + webServerAddress);
+		server.listen(webServerAddress);
+	}
+	for (var domain in settings.config.LOCAL.redirect) {
+		var webServerAddress = "http://";
+		if (settings.config.LOCAL.redirect[domain].subDomain == "") {
+			webServerAddress += domain + ":" + settings.config.LOCAL.redirect[domain].subDomainPort + "/";
+		} else {
+			webServerAddress += settings.config.LOCAL.redirect[domain].subDomain + "." + domain + ":" + settings.config.LOCAL.redirect[domain].subDomainPort + "/";
+		}
+		console.log("REDIRECT: " + webServerAddress);
+		server.listen(webServerAddress);
 	}
 } else {
 	server.listen(port);

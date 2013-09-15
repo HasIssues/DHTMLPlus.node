@@ -169,3 +169,5 @@ templates
 local.js
 /server.js.logs
 /App_Data
+/basic-htpasswd
+/digest-htpasswd
