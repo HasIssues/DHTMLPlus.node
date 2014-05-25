@@ -171,3 +171,5 @@ local.js
 /App_Data
 /basic-htpasswd
 /digest-htpasswd
+/.idea
+/node_modules

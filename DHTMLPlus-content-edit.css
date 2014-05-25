@@ -1,0 +1,63 @@
+/* START: Alerts */
+div.errorMenu {width:500px;margin:20px;padding:10px;border:2px solid #333333;background-color:#2C5E89;}
+div.errorMenu a {font-family:arial;font-size:14px;font-weight:bold;color:white;text-decoration:none;margin:0px 20px 0px 0px;}
+div.errorMenu a:hover {color:yellow;text-decoration:underline;}
+div.errorMessageHead {width:500px;margin:20px 20px 0px 20px;padding:10px;font-family:arial;font-size:14px;font-weight:bold;color:white;border:2px solid #D24545;background-color:#D24545;}
+div.errorMessages {width:500px;margin:0px 20px 0px 20px;padding:10px;border:2px solid #D24545;background-color:#FEFDB5;}
+div.errorMessages div.error {font-family:arial;font-size:12px;color:#D24545;padding:5px;}
+/* END: Alerts */
+/* START: Toolbar */
+div.pageInfo {font-family:Arial;padding:10px;color:#0B425E;font-size:12px;font-weight:bold;border-bottom:1px solid #0B425E;}
+div#WebSiteToolBarButton {position:fixed;top:0px;left:0px;z-index:1001;}
+div#WebSiteContentToolBar {visibility:hidden;position:absolute;font-family:Arial;text-align:left;padding:0px;margin:0px;width:400px;z-index:1000;}
+div#WebSiteToolBarMode {position:fixed;top:0px;left:0px;padding:0px 5px 2px 10px;z-index:1000;background-color:#2E8DBC;
+    -webkit-border-radius-bottom-right:15px;-moz-border-radius-bottomright:15px;-webkit-box-shadow:5px 5px 8px #555;-moz-box-shadow:5px 5px 8px #555;box-shadow:5px 5px 8px #555;
+}
+div#WebSiteToolBarFixIt {font-family:Tahoma;padding:5px;position:fixed;top:0px;left:235px;border:2px solid maroon;background-color:#FBF9EA;font-size:12px;font-weight:bold;color:maroon;z-index:9999;-webkit-box-shadow:5px 5px 8px #555;-moz-box-shadow:5px 5px 8px #555;box-shadow:5px 5px 8px #555;}
+div#WebSiteToolBarMode div.modeArea {float:left;margin-left:25px;padding:0px 10px 0px 0px;}
+div#WebSiteToolBarMode div#userWelcome {line-height:13px;padding:3px 0px 3px 30px;margin:0px;color:white;font-size:11px;font-weight:bold;font-family:arial;text-align:center;}
+div#WebSiteToolBarMode div#activeMode {line-height:13px;padding:2px 0px 5px 30px;margin:0px;font-size:11px;font-weight:bold;color:#104864;font-family:arial;text-align:center;}
+div#WebSiteToolBarMenu {position:fixed;top:31px;left:0px;width:140px;padding:40px 0px 20px 0px;border-right:2px solid #487A93;background-color:#487A93;z-index:1000;
+                        -webkit-box-shadow:5px 5px 8px #555;-moz-box-shadow:5px 5px 8px #555;box-shadow:5px 5px 8px #555;
+                        -webkit-border-radius-bottom-right:15px;-moz-border-radius-bottomright:15px;
+                        }
+div#WebSiteToolBarMenu a {display:block;font-family:Arial;font-size:12px;color:#FFFFFF;font-weight:bold;text-decoration:none;padding:1px 0px 1px 8px;text-align:left;}
+div#WebSiteToolBarMenu a:hover {color:#FEECAD;background-color:#3A6B84;}
+div.WebSiteLevel2Menu {position:absolute;background-color:#7BAEC7;border:1px solid #0B425E;z-index:1000;-webkit-box-shadow:5px 5px 8px #555;-moz-box-shadow:5px 5px 8px #555;box-shadow:5px 5px 8px #555;}
+div.WebSiteLevel2Menu a {display:block;font-family:Arial;font-size:12px;color:#0B425E;font-weight:bold;text-decoration:none;padding:1px 8px 1px 8px;text-align:left;}
+div.WebSiteLevel2Menu a:hover {color:#FFFFFF;background-color:#487A93;}
+div.WebSiteLevel3Menu {position:absolute;background-color:#7BAEC7;border:1px solid #0B425E;z-index:1000;-webkit-box-shadow:5px 5px 8px #555;-moz-box-shadow:5px 5px 8px #555;box-shadow:5px 5px 8px #555;}
+div.WebSiteLevel3Menu a {display:block;font-family:Arial;font-size:12px;color:#0B425E;font-weight:bold;text-decoration:none;padding:1px 8px 1px 8px;text-align:left;}
+div.WebSiteLevel3Menu a:hover {color:#FFFFFF;background-color:#487A93;}
+/* END: Toolbar */
+/* START: Forms and Popups */
+div#WebSiteGrad {visibility:hidden;background-color:#666;top:0px;left:0px;position:absolute;height:100%;width:100%;opacity:0.50;cursor:default;z-index:1000;}
+.IE div#WebSiteGrad {background-color:Transparent;background-image:url(/images/gradiant.gif);}
+#WebSiteContentPopup {visibility:hidden;background-color:transparent;padding:0px;position:absolute;font-family:Arial;text-align:left;width:300px;z-index:1000;}
+#WebSiteContentPopup .popupContent {padding:10px 10px 10px 5px;background-color:#E8F2FC;}
+#WebSiteContentPopup .popupContent span {font-size:12px;font-weight:normal;color:#1B5D7E;}
+#WebSiteContentPopup .popupContent source {font-size:12px;font-weight:normal;color:#1B5D7E;}
+#WebSiteContentPopup textarea {width:425px;margin:0px 0px 5px 0px;}
+#WebSiteContentPopup input {margin:0px 5px 0px 0px;}
+#WebSiteContentPopup .textbox {border:1px solid #555555;}
+#WebSiteContentPopup .FPH {display:block;background-color:transparent;margin:0px;padding:0px;}
+#WebSiteContentPopup .FPH .FPHContent {font-family:arial;font-size:16px;font-weight:bold;color:#1B5D7E;background-color:#E8F2FC;padding:0px 0px 5px 0px;text-align:center;}
+#WebSiteContentPopup .FPF {display:block;background-color:transparent;margin:0px;padding:0px;height:10px;}
+#WebSiteContentPopup .FPF .FPFContent {padding:7px 10px 8px 0px;background-color:#1b5d7e;text-align:right;}
+#WebSiteContentPopup .FPL {font-family:arial;font-size:12px;font-weight:bold;color:#444444;padding:4px 0px 2px 0px;}
+#WebSiteContentPopup .FPT {font-family:arial;font-size:12px;font-weight:normal;color:#444444;padding:4px 0px 2px 0px;}
+#WebSiteHelp {visibility:hidden;position:absolute;width:180px;border:1px solid red;padding:5px;background-color:#F9F9C7;text-align:left;font-size:10px;z-index:1003;}
+/* END: Forms and Popups */
+/* START: rounded corners */
+.roundTop {border-top-left-radius:10px;border-top-right-radius:10px;-webkit-border-radius-top-left:10px;-webkit-border-radius-top-right:10px;-moz-border-radius-topleft:10px;-moz-border-radius-topright:10px;}
+.roundBottom {border-top-bottom-radius:10px;border-bottom-right-radius:10px;-webkit-border-radius-bottom-left:10px;-webkit-border-radius-bottom-right:10px;-moz-border-radius-bottomleft:10px;-moz-border-radius-bottomright:10px;}
+.roundAll {border-radius:10px;-webkit-border-radius:10px;-moz-border-radius:10px;}
+/* END: rounded corners */
+/* START: WYSIWYG */
+#WebSiteContentPopup div span.label {font-size:12px;font-weight:bold;color:#333333;padding:0px 4px 0px 0px;}
+#WebSiteContentPopup div span.value {font-size:12px;font-weight:normal;color:#097DBE;padding:0px 0px 0px 4px;}
+#WebSiteContentToolBar {width:420px;height:35px;padding:0px;margin:0px;background-color:transparent;}
+#WebSiteContentToolBar button {padding:0px;margin:0px;height:35px;vertical-align:middle;}
+#WebSiteContentToolBar button img {vertical-align:middle;}
+.IE8 #WebSiteContentToolBar button {padding:3px 2px 1px 3px;}
+/* END: WYSIWYG */

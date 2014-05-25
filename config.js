@@ -1,5 +1,6 @@
 exports.config = {
 	"LOCAL": {
+        templates: {path: "E:/WebSites/"},
 		endpoint: {
 			"360report.com": { subDomain: "preview", port: 80, auth: "none" },
 			"bestnetchoice.com": { subDomain: "preview", port: 80, auth: "none" },
@@ -27,6 +28,7 @@ exports.config = {
 		}
 	},
 	"AZURE": {
+        templates: {path: "/"},
 		endpoint: {
 			"azurewebsites.net": { subDomain: "hasissues", port: 80, auth: "none" },
 			"360report.com": { subDomain: "www", port: 80, auth: "none" },

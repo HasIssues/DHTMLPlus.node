@@ -4,8 +4,7 @@ var fs = require("fs");
 var os = require("os");
 var local = require("./local.js");
 var settings = require("./config.js");
-var content = require("dhtmlplus"); //-- for deployment
-//var content = require("../dhtmlplus/index.js"); //-- for local development
+var content = require("./presenter.js");
 var serverOptions = { };
 
 //-- vars
