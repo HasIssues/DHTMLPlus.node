@@ -3,8 +3,8 @@ Local settings to mirror azure
 Exclude this from git
 */
 exports.localKeys = {
-	"AZURE_STORAGE_ACCOUNT": "",
-	"AZURE_STORAGE_ACCESS_KEY":"",
+	"AZURE_STORAGE_ACCOUNT": "hasissues",
+	"AZURE_STORAGE_ACCESS_KEY":"EJPSiAd5NvbcTDAVr4qiHfIZQH7NiBPcPFgtD4Z8u+AD1FTl2zeVhuk39Ve761aHzAxtbDVGwWP7BVJby602zA==",
 	"port": 80,
 	"useCloudData": false,
 	"useCluster": true
@@ -14,9 +14,9 @@ settings for video streaming
 */
 exports.video = {
 	settings: {
-		"AZURE_STORAGE_ACCOUNT": "",
-		"AZURE_STORAGE_ACCESS_KEY":"",
-		tmdbApiKey: "",
+		"AZURE_STORAGE_ACCOUNT": "sneakerz",
+		"AZURE_STORAGE_ACCESS_KEY":"xYJ+XEWJcEgBbHb7/FKpt+sswIaahly7Ix4rOl+RHy57axiyUoltEh/gqzIOL92htOMajcL1IDLJtHpmftJKFA==",
+		tmdbApiKey: "37b3a21aa5c5ebd0518d9f4213038edc",
 		domains: ["sneakerz.com"],
 		users: {
 			"all": "idontknow"

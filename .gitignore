@@ -166,7 +166,7 @@ pip-log.txt
 ## DHTMLPlus
 #############
 templates
-local.js
+/local.js
 /server.js.logs
 /App_Data
 /basic-htpasswd
