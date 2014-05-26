@@ -4,7 +4,7 @@
     "name": "HasIssues",
     "version": "0.1.66",
     "description": "DHTMLPlus.node for HasIssues",
-    "main": "azure.js",
+    "main": "server.js",
     "private": true,
     "engines":{"node": "0.10.5"},
     "dependencies": {
@@ -18,7 +18,7 @@
     },
     "devDependencies": {},
     "scripts": {
-        "start": "node azure.js"
+        "start": "node server.js"
     },
     "repository": {
         "type": "git",
