@@ -8,10 +8,10 @@ var content = require("./presenter.js");
 var serverOptions = { };
 
 //-- vars
-var configName = "LOCAL";
+var configName = "AZURE";
 var numCPUs = os.cpus().length;
 var machineName = os.hostname().toUpperCase();
-var port = 80;
+var port = process.env.PORT || 1337;
 var useCloudData = false;
 var useCluster = false;
 var useHttpSys = false;
@@ -20,8 +20,6 @@ var siteAuth = null;
 
 http = require("http");
 azure = require("azure");
-configName = "AZURE";
-port = process.env.PORT || 1337;
 useCloudData = true;
 
 //-- HTTP Server for redirect
@@ -69,7 +67,7 @@ var serverRequest = function (req, res) {
     } else if (hosted) {
         try {
             //content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, "", local);
-            res.end("offline").
+            res.end("offline");
         } catch (e) {
             res.writeHead(500, { 'Content-Type': 'text/html'});
             res.end(e);
