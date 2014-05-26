@@ -67,32 +67,11 @@ var serverRequest = function (req, res) {
         res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
         res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
     } else if (hosted) {
-        var useSecurity = false;
-        if ("auth" in settings.config[configName].endpoint[domain]) {
-            if (settings.config[configName].endpoint[domain].auth != "none") {
-                useSecurity = true;
-                //-- BASED ON: http://www.sitepoint.com/http-authentication-in-node-js/
-                var auth = require("http-auth");
-                var authConfig = auth({ authRealm: domain, authFile: "./" + settings.config[configName].endpoint[domain].auth + "-htpasswd", authType: settings.config[configName].endpoint[domain].auth });
-                authConfig.apply(req, res, function (username) {
-                    //-- process request with security
-                    try {
-                        content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, username, local);
-                    } catch (e) {
-                        res.writeHead(500, { 'Content-Type': 'text/html'});
-                        res.end(e);
-                    }
-                });
-            }
-        }
-        if (!useSecurity) {
-            //-- process request without security
-            try {
-                content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, "", local);
-            } catch (e) {
-                res.writeHead(500, { 'Content-Type': 'text/html'});
-                res.end(e);
-            }
+        try {
+            content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, "", local);
+        } catch (e) {
+            res.writeHead(500, { 'Content-Type': 'text/html'});
+            res.end(e);
         }
     } else {
         //-- not processed
@@ -106,52 +85,7 @@ var serverRequest = function (req, res) {
 };
 
 //-- start listener based on config
-if (configName == "LOCAL" && useCluster) {
-    var cluster = require("cluster");
-    if (cluster.isMaster) {
-        console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
-        console.log("Running Node Version " + process.versions.node);
-        for (var i = 1; i <= clusterForks; i++) { cluster.fork(); }
-        cluster.on("exit", function(worker, code, signal) { var exitCode = worker.process.exitCode; console.log("worker " + worker.process.pid + " died (" + exitCode + "). restarting..."); cluster.fork(); });
-        cluster.on('listening', function(worker, address) { console.log("Worker " + worker.process.pid + " listening  on " + address.port); });
-    } else {
-        // Workers can share any TCP connection, In this case its a HTTP server
-        var server = http.createServer(function (req, res) { serverRequest(req, res); }).listen(port);
-    }
-} else if (configName == "LOCAL" && !useCluster && useHttpSys) {
-    console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
-    console.log("Running Node Version " + process.versions.node);
-    for (var domain in settings.config.LOCAL.endpoint) {
-        var webServerAddress = "http://";
-        if (settings.config.LOCAL.endpoint[domain].subDomain == "") {
-            webServerAddress += domain + ":" + settings.config.LOCAL.endpoint[domain].port + "/";
-        } else {
-            webServerAddress += settings.config.LOCAL.endpoint[domain].subDomain + "." + domain + ":" + settings.config.LOCAL.endpoint[domain].port + "/";
-        }
-        try {
-            var server = http.createServer(serverOptions, function (req, res) { serverRequest(req, res); }).listen(webServerAddress);
-            console.log("WEB SERVER: " + webServerAddress);
-        } catch (e) {
-            console.log("FAIL WEB SERVER: " + webServerAddress);
-        }
-    }
-    for (var domain in settings.config.LOCAL.redirect) {
-        var webServerAddress = "http://";
-        if (settings.config.LOCAL.redirect[domain].subDomain == "") {
-            webServerAddress += domain + ":" + settings.config.LOCAL.redirect[domain].subDomainPort + "/";
-        } else {
-            webServerAddress += settings.config.LOCAL.redirect[domain].subDomain + "." + domain + ":" + settings.config.LOCAL.redirect[domain].subDomainPort + "/";
-        }
-        try {
-            var server = http.createServer(serverOptions, function (req, res) { serverRequest(req, res); }).listen(webServerAddress);
-            console.log("REDIRECT: " + webServerAddress);
-        } catch (e) {
-            console.log("FAIL REDIRECT: " + webServerAddress);
-        }
-    }
-} else {
-    var server = http.createServer(function (req, res) { serverRequest(req, res); }).listen(port);
-    console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
-    console.log("Running Node Version " + process.versions.node);
-    console.log("Listing on port " + port);
-}
+var server = http.createServer(function (req, res) { serverRequest(req, res); }).listen(port);
+console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
+console.log("Running Node Version " + process.versions.node);
+console.log("Listing on port " + port);
