@@ -1,16 +1,16 @@
 http = null;
 azure = null;
-var fs = require("fs");
-var os = require("os");
+//var fs = require("fs");
+//var os = require("os");
 var local = null;
 var settings = require("./config.js");
-var content = require("./presenter.js");
+//var content = require("./presenter.js");
 var serverOptions = { };
 
 //-- vars
 var configName = "AZURE";
-var numCPUs = os.cpus().length;
-var machineName = os.hostname().toUpperCase();
+var numCPUs = ""; //os.cpus().length;
+var machineName = ""; //os.hostname().toUpperCase();
 var port = process.env.PORT || 1337;
 var useCloudData = false;
 var useCluster = false;
@@ -84,7 +84,10 @@ var serverRequest = function (req, res) {
 };
 
 //-- start listener based on config
-var server = http.createServer(function (req, res) { serverRequest(req, res); }).listen(port);
+var server = http.createServer(function (req, res) {
+    //serverRequest(req, res);
+    res.end("BYE");
+}).listen(port);
 console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
 console.log("Running Node Version " + process.versions.node);
 console.log("Listing on port " + port);
