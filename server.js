@@ -1,6 +1,6 @@
 http = null;
 azure = null;
-var fs = require("fs");
+//var fs = require("fs");
 var os = require("os");
 var local = null;
 var settings = require("./config.js");
