@@ -1,4 +1,6 @@
 {
+    "author": "Mark Hebert",
+    "license": "ISC",
     "name": "DHTMLPlus.node",
     "version": "0.1.56",
     "description": "DHTMLPlus.node",
@@ -14,7 +16,7 @@
     },
     "devDependencies": {},
     "scripts": {
-        "engines":{"node": "~0.10.28"},
+        "engines":{"node": "0.10.25"},
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node azure.js"
     },
@@ -22,11 +24,9 @@
         "type": "git",
         "url": "https://github.com/HasIssues/DHTMLPlus.node.git"
     },
-    "author": "Mark Hebert",
-    "license": "ISC",
     "bugs": {
         "url": "https://github.com/HasIssues/DHTMLPlus.node/issues"
     },
     "homepage": "https://github.com/HasIssues/DHTMLPlus.node",
-    "engines":{"node": "~0.10.28"}
+    "engines":{"node": "0.10.25"}
 }
