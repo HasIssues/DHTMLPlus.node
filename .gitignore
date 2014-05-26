@@ -1,8 +1,9 @@
-templates
+/templates
 /local.js
 /server.js.logs
 /App_Data
 /basic-htpasswd
 /digest-htpasswd
-.idea
-node_modules
+/obj
+/.idea
+/node_modules

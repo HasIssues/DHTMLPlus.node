@@ -6,7 +6,7 @@
     "description": "DHTMLPlus.node for HasIssues",
     "main": "server.js",
     "private": true,
-    "engines":{"node": "0.10.5"},
+    "engines":{"node": "0.10.x"},
     "dependencies": {
         "azure": "~0.9.7",
         "cheerio": "~0.16.0",
