@@ -2,7 +2,7 @@
     "name": "DHTMLPlus.node",
     "version": "0.1.56",
     "description": "DHTMLPlus.node",
-    "main": "server.js",
+    "main": "azure.js",
     "dependencies": {
         "azure": ">=0.9.7",
         "cheerio": ">=0.16.0",
@@ -14,8 +14,9 @@
     },
     "devDependencies": {},
     "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+        "engines":{"node": "~0.10.28"},
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node azure.js"
     },
     "repository": {
         "type": "git",
@@ -27,10 +28,5 @@
         "url": "https://github.com/HasIssues/DHTMLPlus.node/issues"
     },
     "homepage": "https://github.com/HasIssues/DHTMLPlus.node",
-    "scripts": {
-        "start": "node azure.js",
-        "engines":{"node": "0.10.28"}
-    },
-    "start": "node azure.js",
-    "engines":{"node": "0.10.28"}
+    "engines":{"node": "~0.10.28"}
 }
