@@ -21,7 +21,7 @@ exports.config = {
 			"webtavern.net": { subDomain: "preview", port: 80, auth: "none" },
 			"is-a-geek.org": { subDomain: "mark", port: 80, auth: "none" },
 			"hobby-site.com": { subDomain: "console", port: 80, auth: "none" },
-			"sneakerz.com": { subDomain: "www", port: 80, auth: "basic" }
+			"sneakerz.com": { subDomain: "www", port: 80, auth: "none" }
 		},
 		redirect: {
 			"sneakerz.com": { subDomain: "", subDomainPort: 80, directTo: "www", directToPort: 80 }

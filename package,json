@@ -1,4 +1,35 @@
-"scripts": {
-	"start": "node server.js",
-	"engines":{"node": "0.10.15 || 0.8.4"}
+{
+  "name": "DHTMLPlus.node",
+  "version": "0.1.56",
+  "description": "DHTMLPlus.node",
+  "main": "server.js",
+  "dependencies": {
+	"azure": ">=0.9.7",
+	"cheerio": ">=0.16.0",
+	"fluent-ffmpeg": ">=1.7.1",
+	"http-auth": ">=2.1.7",
+	"httpsys": ">=0.3.2",
+    "node-uuid": ">=1.4.1",
+	"node-xml": ">=1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HasIssues/DHTMLPlus.node.git"
+  },
+  "author": "Mark Hebert",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HasIssues/DHTMLPlus.node/issues"
+  },
+  "homepage": "https://github.com/HasIssues/DHTMLPlus.node"
+
+    "scripts": {
+        "start": "node server.js",
+        "engines":{"node": "0.10.15 || 0.8.4"}
+    }
 }

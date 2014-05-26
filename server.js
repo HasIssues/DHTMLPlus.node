@@ -16,6 +16,7 @@ var useCloudData = false;
 var useCluster = false;
 var useHttpSys = false;
 var clusterForks = 2;
+var siteAuth = null;
 
 //-- are we in Azure or IIS
 if (process.env.PORT != undefined) {
@@ -51,7 +52,8 @@ var serverRequest = function (req, res) {
 	var requestMethod = req.method;
 	var domain = "";
 	var subDomain = "";
-	if (requestHost !== undefined) {
+
+    if (requestHost !== undefined) {
 		if (requestHost.indexOf(".") > 0) {
 			var requestHostArray = requestHost.split(".");
 			if (requestHostArray.length == 2) {
@@ -84,22 +86,25 @@ var serverRequest = function (req, res) {
 		res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
 		res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
 	} else if (hosted) {
+        var useSecurity = false;
 		if ("auth" in settings.config[configName].endpoint[domain]) {
-			if (settings.config[configName].endpoint[domain].auth != "none") {
-				//-- BASED ON: http://www.sitepoint.com/http-authentication-in-node-js/
-				var auth = require("http-auth");
-				var authConfig = auth({ authRealm: domain, authFile: "./" + settings.config[configName].endpoint[domain].auth + "-htpasswd", authType: settings.config[configName].endpoint[domain].auth });
-				authConfig.apply(req, res, function (username) {
-					//-- process request with security
-					try {
-						content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, username, local);
-					} catch (e) {
-						res.writeHead(500, { 'Content-Type': 'text/html'});
-						res.end(e);
-					}
-				});
-			}
-		} else {
+            if (settings.config[configName].endpoint[domain].auth != "none") {
+                useSecurity = true;
+                //-- BASED ON: http://www.sitepoint.com/http-authentication-in-node-js/
+                var auth = require("http-auth");
+                var authConfig = auth({ authRealm: domain, authFile: "./" + settings.config[configName].endpoint[domain].auth + "-htpasswd", authType: settings.config[configName].endpoint[domain].auth });
+                authConfig.apply(req, res, function (username) {
+                    //-- process request with security
+                    try {
+                        content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, username, local);
+                    } catch (e) {
+                        res.writeHead(500, { 'Content-Type': 'text/html'});
+                        res.end(e);
+                    }
+                });
+            }
+        }
+		if (!useSecurity) {
 			//-- process request without security
 			try {
 				content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, "", local);
