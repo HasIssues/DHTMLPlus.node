@@ -2,11 +2,11 @@
     "author": "Mark Hebert",
     "license": "ISC",
     "name": "HasIssues",
-    "version": "0.1.68",
+    "version": "0.1.69",
     "description": "DHTMLPlus.node for HasIssues",
     "main": "server.js",
     "private": true,
-    "engines":{"node": "0.10.x"},
+    "engines":{"node": "0.10.5"},
     "dependencies": {
         "azure": "~0.9.7",
         "cheerio": "~0.16.0",
