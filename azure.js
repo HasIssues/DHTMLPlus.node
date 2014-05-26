@@ -68,7 +68,8 @@ var serverRequest = function (req, res) {
         res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
     } else if (hosted) {
         try {
-            content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, "", local);
+            //content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, "", local);
+            res.end("offline").
         } catch (e) {
             res.writeHead(500, { 'Content-Type': 'text/html'});
             res.end(e);
