@@ -8,7 +8,7 @@ var content = require("./presenter.js");
 var serverOptions = { };
 
 //-- vars
-var configName = "LOCAL";
+var configName = "AZURE";
 var numCPUs = os.cpus().length;
 var machineName = os.hostname().toUpperCase();
 var port = 80;
@@ -19,7 +19,7 @@ var clusterForks = 2;
 var siteAuth = null;
 
 //-- are we in Azure or IIS
-if (process.env.PORT != undefined) {
+if (configName == "AZURE") {
 	http = require("http");
 	azure = require("azure");
 	configName = "AZURE";
