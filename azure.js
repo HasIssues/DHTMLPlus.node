@@ -74,7 +74,7 @@ var serverRequest = function (req, res) {
         }
     } else {
         //-- not processed
-        res.end();
+        res.end("NOT HOSTED: " + subDomain + "." + domain + " REFERER: " + requestReferer);
         if (subDomain != "") {
             console.log("NOT HOSTED: " + subDomain + "." + domain + " REFERER: " + requestReferer);
         } else {
