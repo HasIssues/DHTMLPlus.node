@@ -1,6 +1,5 @@
 http = null;
 azure = null;
-//var fs = require("fs");
 var os = require("os");
 var local = null;
 var settings = require("./config.js");
@@ -8,7 +7,7 @@ var content = require("./presenter.js");
 var serverOptions = { };
 
 //-- vars
-var configName = "AZURE";
+var configName = "LOCAL";
 var numCPUs = os.cpus().length;
 var machineName = os.hostname().toUpperCase();
 var port = 80;
@@ -19,7 +18,7 @@ var clusterForks = 2;
 var siteAuth = null;
 
 //-- are we in Azure or IIS
-if (configName == "AZURE") {
+if (process.env.PORT != undefined) {
 	http = require("http");
 	azure = require("azure");
 	configName = "AZURE";
