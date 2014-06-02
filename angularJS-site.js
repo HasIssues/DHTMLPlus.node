@@ -17,13 +17,10 @@ exports.responseFile = function (processRequest, processResponse, domain, settin
             //-- get access keys from IIS in Azure
             blobService = azure.createBlobService();
         }
-        blobService.getBlobToStream(domain.replace(".", "-"), relativePath, processResponse,
+        console.log("ANGULARJS BLOB: " + relativePath);
+        blobService.getBlobToStream(domain.replace(".", "-"), relativePath.substring(1,relativePath.length), processResponse,
             function (err) {
-                if (err) {
-                    console.log("ANGULARJS:" + relativePath + ": " + err);
-                } else {
-                    console.log("ANGULARJS BLOB: " + relativePath);
-                }
+                if (err) { console.log("ANGULARJS BLOB ERROR:" + relativePath + ": " + err); }
                 processResponse.end();
             }
         );
