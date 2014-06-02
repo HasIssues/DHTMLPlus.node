@@ -2,14 +2,11 @@ var http = require('http');
 var https = require('https');
 var azure = require('azure');
 var fs = require("fs");
-
-//-- settings
-var settings = require('./config.js');
 var local = require("./local.js");
 
-exports.publishTemplates = function (processRequest, processResponse, path, response, domain, settings, useCloudData, configName) {
+exports.publishTemplates = function (processRequest, processResponse, path, domain, settings, configName) {
 	if (configName == "LOCAL") {
-		baseDir = "./templates/" + domain.replace(".", "-");
+        var baseDir = settings.templates.path + domain.replace(".", "-");
 		var publish = false;
 		if (path.params["deploy"]) {
 			walk(baseDir, domain, baseDir, function(err, results) {

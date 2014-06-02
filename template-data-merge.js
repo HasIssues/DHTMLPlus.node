@@ -16,161 +16,163 @@ exports.templateDataMerge = function (processRequest, processResponse, domain, s
 	response.html = "<h1>No Content Found for " + processRequest.headers.host + ".</h1>";
 	templateDir = settings.templates.path + domain.replace(".", "-");
 	parseURL(processRequest, path, response);
-	if (path.fileName == "publish.htm" && configName == "LOCAL") {
-		var pub = require("./template-push-to-blob.js");
-		pub.publishTemplates(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
-	} else {
-		if (path.fileName.endsWith(".mp4")) {
-			//-- stream vidio using ffmpeg
-			var v = require("./video-stream.js");
-			console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
-			v.streamMP4(processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
-		} else if (path.fileName.endsWith(".avi") || path.fileName.endsWith(".mkv") || path.fileName.endsWith(".webm") || path.fileName.endsWith(".mpg") || path.fileName.endsWith(".m4v")) {
-			//-- stream vidio using ffmpeg
-			var v = require("./video-stream.js");
-			console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
-			v.transcodeStream(processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
-		} else if (path.fileName == "video.index" && configName === "LOCAL") {
-			console.log(configName + ":" + path.fileName);
-			if ("video" in local) {
-				if (local.video.settings.domains[0] == domain) {
-					//-- use DHTMLPlus video and azure
-					var tableService = azure.createTableService(local.video.settings["AZURE_STORAGE_ACCOUNT"], local.video.settings["AZURE_STORAGE_ACCESS_KEY"]);
-					tableService.createTableIfNotExists("movies", function(error) { if(error) { console.log("Create Azure Table: " + error); } });
-					var video = require("./video-index.js");
-					processResponse.writeHead(200, { "Content-Type": "text/html" });
-					var startIndex = "start" in path.params ? path.params.start : 0;
-					var endIndex = "end" in path.params ? path.params.end : 9999;
-					var fileCount = 1;
-					//-- add New videos
-					for (var attr in local.video.paths) {
-						var pathType = local.video.pathTypes[attr];
-						var files = fs.readdirSync(local.video.paths[attr]);
-						for (var i in files) {
-							var f = files[i];
-							if (f.endsWith (".mp4") || f.endsWith(".avi") || f.endsWith(".mkv") || f.endsWith(".webm") || f.endsWith(".mpg") || f.endsWith(".m4v")) {
-								if (fileCount >= startIndex && fileCount <= endIndex) {
-									video.videoIndexUpdate(tableService, unescape(f), local.video.paths[attr] +"/", pathType, processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
-								}
-								fileCount++;
-							}
-						}
-					}
-					console.log("Indexing " + fileCount + " Video Files.");
-					//-- remove missing vides
-					var fileList = [];
-					for (var attr in local.video.paths) {
-						var files = fs.readdirSync(local.video.paths[attr]);
-						for (var i in files) {
-							var f = files[i];
-							if (f.endsWith (".mp4") || f.endsWith(".avi") || f.endsWith(".mkv") || f.endsWith(".webm") || f.endsWith(".mpg") || f.endsWith(".m4v")) {
-								fileList.push(unescape(f));
-							}
-						}
-					}
-					video.videoIndexClean(tableService, fileList, processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
-				} else {
-					processResponse.writeHead(200, { "Content-Type": "text/html" });
-					processResponse.end("Video Prossing not available for this site.");
-				}
-			} else {
-				processResponse.writeHead(200, { "Content-Type": "text/html" });
-				processResponse.end("Video Prossing not available in cloud.");
-			}
-		} else if (path.fileName.endsWith(".htm") && !path.path.startsWith("/preview")) {
-			console.log("REQUEST [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + processRequest.url);
-			load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
-		} else if (path.fileName.endsWith(".content")) {
-			var cm = require("./content-management.js");
-			console.log("CONTENT EDIT: " + processRequest.headers.host + processRequest.url);
-			cm.contentManagement(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
-		} else {
-			if (verboseConsole) { console.log("REQUEST [" + (new Date().toDateString()) + "]: " + path.fileName); }
-			//-- static files
-			var filePath = null;
-			var fileEncode = "utf8";
-			if (path.fileName.indexOf(".css") > 0) {
-				if (path.path.startsWith("/preview")) {
-					filePath = "." + path.path + "/" + path.fileName;
-				} else {
-					filePath = "css/" + path.fileName;
-				}
-				response.contentType = "text/css";
-			} else if (path.fileName.indexOf(".htm") > 0 && path.path.startsWith("/preview")) {
-				filePath = "." + path.path + "/" + path.fileName;
-				response.contentType = "text/html";
-			} else if (path.fileName.indexOf(".js") > 0) {
-				if (path.path.startsWith("/preview")) {
-					filePath = "." + path.path + "/" + path.fileName;
-				} else {
-					filePath = "scripts/" + path.fileName;
-				}
-				response.contentType = "text/javascript";
-			} else if (path.fileName.indexOf(".gif") > 0) {
-				if (path.path.startsWith("/preview")) {
-					filePath = "." + path.path + "/" + path.fileName;
-				} else {
-					filePath = "images/" + path.fileName;
-				}
-				response.contentType = "image/gif";
-				fileEncode = null;
-			} else if (path.fileName.indexOf(".png") > 0) {
-				if (path.path.startsWith("/preview")) {
-					filePath = "." + path.path + "/" + path.fileName;
-				} else {
-					filePath = "images/" + path.fileName;
-				}
-				response.contentType = "image/png";
-				fileEncode = null;
-			} else if (path.fileName.indexOf(".jpg") > 0) {
-				if (path.path.startsWith("/preview")) {
-					filePath = "." + path.path + "/" + path.fileName;
-				} else {
-					filePath = "images/" + path.fileName;
-				}
-				response.contentType = "image/jpg";
-				fileEncode = null;
-			}
-			//-- go get the file
-			if (filePath != null) {
-				if (useCloudData) {
-					var blobService = null;
-					if (configName == "LOCAL") {
-						//-- do this to run local but use cloud storage
-						blobService = azure.createBlobService(local.localKeys["AZURE_STORAGE_ACCOUNT"], local.localKeys["AZURE_STORAGE_ACCESS_KEY"]);
-					} else {
-						//-- get access keys from IIS in Azure 
-						blobService = azure.createBlobService();
-					}
-					blobService.getBlobToStream(domain.replace(".", "-"), filePath, processResponse,
-						function (err) {
-							if (err) {
-								console.log(filePath + ": " + err);
-							} else {
-								if (verboseConsole) { console.log("BLOB: " + filePath); }
-							}
-							processResponse.end();
-						}
-					);
-				} else {
-					if (!filePath.startsWith(".")) { filePath = templateDir + "/" + filePath; }
-					fs.readFile(filePath, fileEncode, function (err, data) {
-						if (verboseConsole) { console.log("RESPONSE: " + filePath); }
-						if (err) {
-							processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
-							processResponse.end("OPPS");
-						} else {
-							processResponse.writeHead(200, { 'Content-Type': response.contentType });
-							processResponse.end(data);
-						}
-					});
-				}
-			} else {
-				processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
-				processResponse.end("404");
-			}
-		}
-	}
+    if (path.fileName.endsWith(".mp4")) {
+        //-- stream vidio using ffmpeg
+        var v = require("./video-stream.js");
+        console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
+        v.streamMP4(processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
+    } else if (path.fileName.endsWith(".avi") || path.fileName.endsWith(".mkv") || path.fileName.endsWith(".webm") || path.fileName.endsWith(".mpg") || path.fileName.endsWith(".m4v")) {
+        //-- stream vidio using ffmpeg
+        var v = require("./video-stream.js");
+        console.log("VIDEO [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + unescape(processRequest.url));
+        v.transcodeStream(processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
+    } else if (path.fileName == "video.index" && configName === "LOCAL") {
+        console.log(configName + ":" + path.fileName);
+        if ("video" in local) {
+            if (local.video.settings.domains[0] == domain) {
+                //-- use DHTMLPlus video and azure
+                var tableService = azure.createTableService(local.video.settings["AZURE_STORAGE_ACCOUNT"], local.video.settings["AZURE_STORAGE_ACCESS_KEY"]);
+                tableService.createTableIfNotExists("movies", function(error) { if(error) { console.log("Create Azure Table: " + error); } });
+                var video = require("./video-index.js");
+                processResponse.writeHead(200, { "Content-Type": "text/html" });
+                var startIndex = "start" in path.params ? path.params.start : 0;
+                var endIndex = "end" in path.params ? path.params.end : 9999;
+                var fileCount = 1;
+                //-- add New videos
+                for (var attr in local.video.paths) {
+                    var pathType = local.video.pathTypes[attr];
+                    var files = fs.readdirSync(local.video.paths[attr]);
+                    for (var i in files) {
+                        var f = files[i];
+                        if (f.endsWith (".mp4") || f.endsWith(".avi") || f.endsWith(".mkv") || f.endsWith(".webm") || f.endsWith(".mpg") || f.endsWith(".m4v")) {
+                            if (fileCount >= startIndex && fileCount <= endIndex) {
+                                video.videoIndexUpdate(tableService, unescape(f), local.video.paths[attr] +"/", pathType, processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
+                            }
+                            fileCount++;
+                        }
+                    }
+                }
+                console.log("Indexing " + fileCount + " Video Files.");
+                //-- remove missing vides
+                var fileList = [];
+                for (var attr in local.video.paths) {
+                    var files = fs.readdirSync(local.video.paths[attr]);
+                    for (var i in files) {
+                        var f = files[i];
+                        if (f.endsWith (".mp4") || f.endsWith(".avi") || f.endsWith(".mkv") || f.endsWith(".webm") || f.endsWith(".mpg") || f.endsWith(".m4v")) {
+                            fileList.push(unescape(f));
+                        }
+                    }
+                }
+                video.videoIndexClean(tableService, fileList, processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
+            } else {
+                processResponse.writeHead(200, { "Content-Type": "text/html" });
+                processResponse.end("Video Prossing not available for this site.");
+            }
+        } else {
+            processResponse.writeHead(200, { "Content-Type": "text/html" });
+            processResponse.end("Video Prossing not available in cloud.");
+        }
+    } else if (path.fileName.endsWith(".htm") && !path.path.startsWith("/preview")) {
+        console.log("REQUEST [" + (new Date().toDateString()) + "]: " + processRequest.headers.host + processRequest.url);
+        load(processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local);
+    } else if (path.fileName.endsWith(".content")) {
+        var cm = require("./content-management.js");
+        console.log("CONTENT EDIT: " + processRequest.headers.host + processRequest.url);
+        cm.contentManagement(processRequest, processResponse, path, response, domain, settings, useCloudData, configName);
+    } else {
+        if (verboseConsole) { console.log("REQUEST [" + (new Date().toDateString()) + "]: " + path.fileName); }
+        //-- static files
+        var filePath = null;
+        var fileEncode = "utf8";
+        if (path.fileName.indexOf(".css") > 0) {
+            if (path.path.startsWith("/preview")) {
+                filePath = "." + path.path + "/" + path.fileName;
+            } else {
+                filePath = "css/" + path.fileName;
+            }
+            response.contentType = "text/css";
+        } else if (path.fileName.indexOf(".htm") > 0 && path.path.startsWith("/preview")) {
+            filePath = "." + path.path + "/" + path.fileName;
+            response.contentType = "text/html";
+        } else if (path.fileName.indexOf(".js") > 0) {
+            if (path.path.startsWith("/preview")) {
+                filePath = "." + path.path + "/" + path.fileName;
+            } else {
+                filePath = "scripts/" + path.fileName;
+            }
+            response.contentType = "text/javascript";
+        } else if (path.fileName.indexOf(".gif") > 0) {
+            if (path.path.startsWith("/preview")) {
+                filePath = "." + path.path + "/" + path.fileName;
+            } else {
+                filePath = "images/" + path.fileName;
+            }
+            response.contentType = "image/gif";
+            fileEncode = null;
+        } else if (path.fileName.indexOf(".png") > 0) {
+            if (path.path.startsWith("/preview")) {
+                filePath = "." + path.path + "/" + path.fileName;
+            } else {
+                filePath = "images/" + path.fileName;
+            }
+            response.contentType = "image/png";
+            fileEncode = null;
+        } else if (path.fileName.indexOf(".jpg") > 0) {
+            if (path.path.startsWith("/preview")) {
+                filePath = "." + path.path + "/" + path.fileName;
+            } else {
+                filePath = "images/" + path.fileName;
+            }
+            response.contentType = "image/jpg";
+            fileEncode = null;
+        } else if (path.fileName.indexOf(".appcache") > 0) {
+            if (path.path.startsWith("/preview")) {
+                filePath = "." + path.path + "/" + path.fileName;
+            } else {
+                filePath = "images/" + path.fileName;
+            }
+            response.contentType = "text/cache-manifest";
+        }
+        //-- go get the file
+        if (filePath != null) {
+            if (useCloudData) {
+                var blobService = null;
+                if (configName == "LOCAL") {
+                    //-- do this to run local but use cloud storage
+                    blobService = azure.createBlobService(local.localKeys["AZURE_STORAGE_ACCOUNT"], local.localKeys["AZURE_STORAGE_ACCESS_KEY"]);
+                } else {
+                    //-- get access keys from IIS in Azure
+                    blobService = azure.createBlobService();
+                }
+                blobService.getBlobToStream(domain.replace(".", "-"), filePath, processResponse,
+                    function (err) {
+                        if (err) {
+                            console.log(filePath + ": " + err);
+                        } else {
+                            if (verboseConsole) { console.log("BLOB: " + filePath); }
+                        }
+                        processResponse.end();
+                    }
+                );
+            } else {
+                if (!filePath.startsWith(".")) { filePath = templateDir + "/" + filePath; }
+                fs.readFile(filePath, fileEncode, function (err, data) {
+                    if (verboseConsole) { console.log("RESPONSE: " + filePath); }
+                    if (err) {
+                        processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
+                        processResponse.end("OPPS");
+                    } else {
+                        processResponse.writeHead(200, { 'Content-Type': response.contentType });
+                        processResponse.end(data);
+                    }
+                });
+            }
+        } else {
+            processResponse.writeHead(404, { 'Content-Type': response.contentType, 'error': 'File Not Found.' });
+            processResponse.end("404");
+        }
+    }
 };
 
 var load = function (processRequest, processResponse, path, response, domain, settings, useCloudData, configName, local) {

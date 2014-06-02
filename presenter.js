@@ -1,6 +1,3 @@
-var template = require('./template-data-merge.js');
-var cheerio = require("cheerio");
-var azure = require('azure');
 
 exports.presenter = function (req, res, domain, settings, useCloudData, configName, userName, local) {
 	var requestHost = req.headers.host.toLowerCase();
@@ -40,7 +37,28 @@ exports.presenter = function (req, res, domain, settings, useCloudData, configNa
 				res.end(data);
 			}
 		});
+    } else if (requestURL.startsWith("/publish.htm") && configName == "LOCAL") {
+        console.log("PUBLISH: "+ domain);
+        var path = {"params" : {} };
+        if (requestURL.endsWith("deploy=true")) { path = {"params" : {"deploy" : true } }; }
+        var pub = require("./template-push-to-blob.js");
+        pub.publishTemplates(req, res, path, domain, settings, configName);
 	} else {
-		template.templateDataMerge(req, res, domain, settings, useCloudData, configName, userName, local);
+        if (settings.endpoint[domain].type == "DHTMLPlus") {
+            var template = require('./template-data-merge.js');
+            template.templateDataMerge(req, res, domain, settings, useCloudData, configName, userName, local);
+        } else if (settings.endpoint[domain].type == "angularJS") {
+            var template = require('./angularJS-site.js');
+            template.responseFile(req, res, domain, settings, useCloudData, configName, userName, local);
+        } else if (settings.endpoint[domain].type == "static") {
+            var template = require('./static-site.js');
+            template.responseFile(req, res, domain, settings, useCloudData, configName, userName, local);
+        } else {
+            res.writeHead(404, { 'Content-Type': "text/html", 'error': 'File Not Found.' });
+            res.end("OPPS");
+        }
 	}
 };
+
+String.prototype.endsWith = function(suffix) { return this.indexOf(suffix, this.length - suffix.length) !== -1; };
+String.prototype.startsWith = function(str) {return (this.match("^"+str)==str)};

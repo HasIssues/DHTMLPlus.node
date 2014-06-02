@@ -90,12 +90,15 @@ var serverRequest = function (req, res) {
             if (settings.config[configName].endpoint[domain].auth != "none") {
                 useSecurity = true;
                 //-- BASED ON: http://www.sitepoint.com/http-authentication-in-node-js/
-                var auth = require("http-auth");
-                var authConfig = auth({ authRealm: domain, authFile: "./" + settings.config[configName].endpoint[domain].auth + "-htpasswd", authType: settings.config[configName].endpoint[domain].auth });
-                authConfig.apply(req, res, function (username) {
-                    //-- process request with security
+                var securityType = settings.config[configName].endpoint[domain].auth; //-- basic or digest
+                console.log("SECURITY:" + securityType);
+                var auth = require('http-auth');
+                var options = { realm: domain, file: "./" + securityType + "-htpasswd" };
+                var authConfig = (securityType == 'basic' ? auth.basic(options) : auth.digest(options));
+                console.log("SECURITY:" + securityType);
+                auth.connect(authConfig)(req, res, function() {
                     try {
-                        content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, username, local);
+                        content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, req.user, local);
                     } catch (e) {
                         res.writeHead(500, { 'Content-Type': 'text/html'});
                         res.end(e);
