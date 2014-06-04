@@ -18,10 +18,23 @@ exports.responseFile = function (processRequest, processResponse, domain, settin
             blobService = azure.createBlobService();
         }
         console.log("ANGULARJS BLOB: " + relativePath);
-        blobService.getBlobToStream(domain.replace(".", "-"), relativePath.substring(1,relativePath.length), processResponse,
-            function (err) {
-                if (err) { console.log("ANGULARJS BLOB ERROR:" + relativePath + ": " + err); }
-                processResponse.end();
+        blobService.getBlobProperties(domain.replace(".", "-"), relativePath.substring(1,relativePath.length),
+            function (error, blockBlob, response) {
+                if (error) {
+                    blobService.getBlobToStream(domain.replace(".", "-"), settings.endpoint[domain].default, processResponse,
+                        function (error, blockBlob, response) {
+                            if (error) { console.log("ANGULARJS BLOB ERROR:" + settings.endpoint[domain].default + ": " + err); }
+                            processResponse.end();
+                        }
+                    );
+                } else {
+                    blobService.getBlobToStream(domain.replace(".", "-"), relativePath.substring(1,relativePath.length), processResponse,
+                        function (error, blockBlob, response) {
+                            if (error) { console.log("ANGULARJS BLOB ERROR:" + relativePath + ": " + err); }
+                            processResponse.end();
+                        }
+                    );
+                }
             }
         );
     } else {
