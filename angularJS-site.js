@@ -18,6 +18,7 @@ exports.responseFile = function (processRequest, processResponse, domain, settin
             blobService = azure.createBlobService();
         }
         console.log("ANGULARJS BLOB: " + relativePath);
+        processResponse.writeHead(200, { "Content-Type": mime.lookup(relativePath) });
         blobService.getBlobProperties(domain.replace(".", "-"), relativePath.substring(1,relativePath.length),
             function (error, blockBlob, response) {
                 if (error) {

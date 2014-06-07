@@ -91,12 +91,11 @@ var serverRequest = function (req, res) {
                 useSecurity = true;
                 //-- BASED ON: http://www.sitepoint.com/http-authentication-in-node-js/
                 var securityType = settings.config[configName].endpoint[domain].auth; //-- basic or digest
-                console.log("SECURITY:" + securityType);
                 var auth = require('http-auth');
                 var options = { realm: domain, file: "./" + securityType + "-htpasswd" };
                 var authConfig = (securityType == 'basic' ? auth.basic(options) : auth.digest(options));
-                console.log("SECURITY:" + securityType);
                 auth.connect(authConfig)(req, res, function() {
+                    console.log("SECURITY: " + req.user + " " + securityType + " security for " + domain);
                     try {
                         content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, req.user, local);
                     } catch (e) {

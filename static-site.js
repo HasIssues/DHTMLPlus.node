@@ -18,6 +18,7 @@ exports.responseFile = function (processRequest, processResponse, domain, settin
             blobService = azure.createBlobService();
         }
         console.log("STATIC BLOB: " + relativePath);
+        processResponse.writeHead(200, { "Content-Type": mime.lookup(relativePath) });
         blobService.getBlobToStream(domain.replace(".", "-"), relativePath.substring(1,relativePath.length), processResponse,
             function (err) {
                 if (err) { console.log("STATICE BLOB ERROR:" + relativePath + ": " + err); }
