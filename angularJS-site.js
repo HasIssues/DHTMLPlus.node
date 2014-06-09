@@ -7,6 +7,7 @@ exports.responseFile = function (processRequest, processResponse, domain, settin
     var relativePath = decodeURIComponent(processRequest.url);
     if (relativePath.indexOf("?") > -1) { relativePath = uriString.split("?")[0]; }
     if (relativePath == "/") { relativePath = "/" + settings.endpoint[domain].default}
+    if (relativePath.indexOf(".") < 0) { relativePath = "/" + settings.endpoint[domain].default}
 
     if (useCloudData) {
         var blobService = null;
