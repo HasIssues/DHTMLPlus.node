@@ -22,13 +22,6 @@ Guides / How-to's
 -----------------
 [DHTMLPlus.node wiki](https://github.com/HasIssues/DHTMLPlus/wiki/home) Guides and detailed help topics.
 
-installation
-------------
-npm install dhtmlplus
-
-[Real World Example](https://github.com/HasIssues/DHTMLPlus.node) This is my Git Project I use with Azure to support 20 sites. Uses both local and Azure.
-
-
 Development Setup
 -----------------
 In your code folder, create a file called local.js
