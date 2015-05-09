@@ -65,7 +65,7 @@ var serverInfo = function() {
 	consoleLog("\n\x1b[42m                             \x1b[0m");
 	consoleLog("\x1b[32m Environment....: \x1b[0m" + configName);
 	//consoleLog("\x1b[32m HTTP2..........: \x1b[0m" + serverSettings.http2);
-	//consoleLog("\x1b[32m Port...........: \x1b[0m" + serverSettings.port);
+	consoleLog("\x1b[32m Port...........: \x1b[0m" + port);
 	consoleLog("\x1b[32m Debug Port.....: \x1b[0m" + process.debugPort);
 	//consoleLog("\x1b[32m Cluster........: \x1b[0m" + serverSettings.cluster);
 	//consoleLog("\x1b[32m Listeners......: \x1b[0m" + serverSettings.listeners);
@@ -74,7 +74,13 @@ var serverInfo = function() {
 	//consoleLog("\x1b[32m Compress.......: \x1b[0m" + serverSettings.compress);
 	//consoleLog("\x1b[32m Gzip...........: \x1b[0m" + serverSettings.gzip);
 	//consoleLog("\x1b[32m Dev............: \x1b[0m" + serverSettings.dev);
-	//consoleLog("\x1b[32m cacheBuster....: \x1b[0m" + serverSettings.cacheBuster);
+    //consoleLog("\x1b[32m cacheBuster....: \x1b[0m" + serverSettings.cacheBuster);
+    
+    consoleLog("\x1b[32m useCloudData...: \x1b[0m" + useCloudData);
+    consoleLog("\x1b[32m useCluster.....: \x1b[0m" + useCluster);
+    consoleLog("\x1b[32m useHttpSys.....: \x1b[0m" + useHttpSys);
+    consoleLog("\x1b[32m clusterForks...: \x1b[0m" + clusterForks);
+
 	consoleLog("\x1b[33m Node/io.js.....: \x1b[0m" + process.versions.node);
 	consoleLog("\x1b[33m Http Parser....: \x1b[0m" + process.versions.http_parser);
 	consoleLog("\x1b[33m V8.............: \x1b[0m" + process.versions.v8);
