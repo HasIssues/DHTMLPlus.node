@@ -7,7 +7,7 @@ exports.localKeys = {
 	"AZURE_STORAGE_ACCESS_KEY":"EJPSiAd5NvbcTDAVr4qiHfIZQH7NiBPcPFgtD4Z8u+AD1FTl2zeVhuk39Ve761aHzAxtbDVGwWP7BVJby602zA==",
 	"port": 80,
 	"useCloudData": false,
-    "useCluster": true,
+    "useCluster": false,
     "useHttpSys": false
 
 };

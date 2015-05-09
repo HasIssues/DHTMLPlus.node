@@ -17,6 +17,7 @@
     <StartWebBrowser>False</StartWebBrowser>
     <ScriptArguments>env=preview</ScriptArguments>
     <NodejsPort>80</NodejsPort>
+    <NodeExePath>C:\Program Files\iojs\iojs.exe</NodeExePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />

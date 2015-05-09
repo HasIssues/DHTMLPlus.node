@@ -5,6 +5,8 @@ var local = null;
 var settings = require("./config.js");
 var content = require("./presenter.js");
 var serverOptions = { };
+var startup = process.argv[1];
+var exe = process.argv[0];
 
 //-- vars
 var configName = "";
@@ -16,6 +18,7 @@ var useCluster = false;
 var useHttpSys = false;
 var clusterForks = 2;
 var siteAuth = null;
+var websitesInstalled = false;
 
 //-- messaging
 var consoleLog = function (message, force) {
@@ -23,31 +26,36 @@ var consoleLog = function (message, force) {
 };
 
 //-- get cmd line overrides
-process.argv.forEach(function (val, index, array) {
-    if (val.indexOf("=") > 0) {
-        var param = val.split("=");
-        try {
-            if (param[0].toLowerCase() === "env") { configName = param[1].toUpperCase(); }
-        } catch (e) { }
-    }
-});
+if (process.argv.length > 2) {
+    process.argv.forEach(function (val, index, array) {
+        if (val.indexOf("=") > 0) {
+            var param = val.split("=");
+            try {
+                if (param[0].toLowerCase() === "env") { configName = param[1].toUpperCase(); }
+            } catch (e) { }
+        }
+    });
+} else {
+    configName = "LOCAL";
+}
 
 //-- are we in Azure or IIS
-if (process.env.PORT != undefined && configName == "") {
+if (process.env.PORT != undefined) {
 	http = require("http");
 	azure = require("azure");
-	configName = "AZURE";
+    if (configName == "") { configName = "AZURE"; }
 	port = process.env.PORT || 1337;
 	useCloudData = true;
 } else {
-    if (configName == "") { configName = "LOCAL"; }
-	local = require("./local.js");
-	//-- these are set in local.js
-	port = local.localKeys["port"];
-	useCloudData = local.localKeys["useCloudData"];
-	useCluster = local.localKeys["useCluster"];
-	useHttpSys = local.localKeys["useHttpSys"];
-	clusterForks = local.localKeys["clusterForks"] != null ? local.localKeys["clusterForks"] : numCPUs;
+    var fs = require("fs");
+    if (fs.existsSync(settings.config[configName].templates.path)) { websitesInstalled = true; }
+    if (fs.existsSync("../DHTMLPlus.settings/")) {
+        local = require("../DHTMLPlus.settings/local.js");
+        useCloudData = local.localKeys["useCloudData"];
+        useCluster = local.localKeys["useCluster"];
+        useHttpSys = local.localKeys["useHttpSys"];
+        clusterForks = local.localKeys["clusterForks"] != null ? local.localKeys["clusterForks"] : numCPUs;
+    }
 	if (useHttpSys) {
 		//-- uses native http.sys on windows only
 		consoleLog("Using Native Mode HTTP.sys");
@@ -59,15 +67,12 @@ if (process.env.PORT != undefined && configName == "") {
 };
 
 var serverInfo = function () {
-    var fs = require("fs");
-    stats = fs.lstatSync(settings.config[configName].templates.path);
-    var websitesInstalled = false;
-    if (stats.isDirectory()) { websitesInstalled = true; }    
     consoleLog("");
 	consoleLog("\x1b[36mMachine " + os.hostname().toUpperCase()  + " with " + numCPUs + " CPUs. In cluster Mode.\x1b[0m", true);
 	//consoleLog("\x1b[36mRunning in " + (serverSettings.ssl ? "Secure SSL" : "HTTP Only") + " mode.\x1b[0m", true);
-	consoleLog("\n\x1b[1;42m DHTMLPlus.node              \x1b[0m");
+    consoleLog("\n\x1b[1;42m DHTMLPlus.node              \x1b[0m");
 	consoleLog("\x1b[92m Environment....: \x1b[0m" + configName);
+    consoleLog("\x1b[92m Start Path.....: \x1b[0m" + startup);
 	//consoleLog("\x1b[32m HTTP2..........: \x1b[0m" + serverSettings.http2);
 	consoleLog("\x1b[92m Port...........: \x1b[0m" + port);
 	consoleLog("\x1b[92m Debug Port.....: \x1b[0m" + process.debugPort);
@@ -82,9 +87,9 @@ var serverInfo = function () {
     consoleLog("\x1b[92m useCluster.....: \x1b[0m" + useCluster);
     consoleLog("\x1b[92m useHttpSys.....: \x1b[0m" + useHttpSys);
     consoleLog("\x1b[92m clusterForks...: \x1b[0m" + clusterForks);
-    
     consoleLog("\x1b[1;43m node.js/io.js               \x1b[0m");
-    consoleLog("\x1b[93m Node/io.js.....: \x1b[0m" + process.versions.node);
+    consoleLog("\x1b[93m EXE............: \x1b[0m" + exe);
+    consoleLog("\x1b[93m Version........: \x1b[0m" + process.versions.node);
 	consoleLog("\x1b[93m Http Parser....: \x1b[0m" + process.versions.http_parser);
 	consoleLog("\x1b[93m V8.............: \x1b[0m" + process.versions.v8);
 	consoleLog("\x1b[93m UV.............: \x1b[0m" + process.versions.uv);
@@ -94,11 +99,9 @@ var serverInfo = function () {
 	consoleLog("\x1b[93m OpenSSL........: \x1b[0m" + process.versions.openssl);
 	consoleLog("\x1b[93m Arch...........: \x1b[0m" + process.arch);
 	consoleLog("\x1b[93m Platform.......: \x1b[0m" + os.platform());
-
     consoleLog("\x1b[1;44m WebSites                    \x1b[0m");
     consoleLog("\x1b[94m WebSites.......: \x1b[0m" + settings.config[configName].templates.path);
     consoleLog("\x1b[94m Installed......: \x1b[0m" + websitesInstalled);
-
     consoleLog("\x1b[1;45m Machine Settings            \x1b[0m");
     consoleLog("\x1b[95m................: \x1b[0m" + "--");
 
@@ -188,19 +191,19 @@ var serverRequest = function (req, res) {
 };
 
 //-- start listener based on config
-if (configName == "LOCAL" && useCluster) {
+if (configName !== "AZURE" && useCluster) {
 	var cluster = require("cluster");
 	if (cluster.isMaster) {
 		serverInfo();
 		// start clusters
 		for (var i = 1; i <= clusterForks; i++) { cluster.fork(); }
-		cluster.on("exit", function(worker, code, signal) { var exitCode = worker.process.exitCode; console.log("worker " + worker.process.pid + " died (" + exitCode + "). restarting..."); cluster.fork(); });
-		cluster.on('listening', function(worker, address) { console.log("Worker " + worker.process.pid + " listening  on " + address.port); });
+		cluster.on("exit", function(worker, code, signal) { var exitCode = worker.process.exitCode; consoleLog("worker " + worker.process.pid + " died (" + exitCode + "). restarting..."); cluster.fork(); });
+		cluster.on('listening', function(worker, address) { consoleLog("Worker " + worker.process.pid + " listening  on " + address.port); });
 	} else {
 		// Workers can share any TCP connection, In this case its a HTTP server
 		var server = http.createServer(function (req, res) { serverRequest(req, res); }).listen(port);
 	}
-} else if (configName == "LOCAL" && !useCluster && useHttpSys) {
+} else if (configName !== "AZURE" && !useCluster && useHttpSys) {
 	serverInfo();
 	for (var domain in settings.config.LOCAL.endpoint) {
 		var webServerAddress = "http://";
@@ -211,9 +214,9 @@ if (configName == "LOCAL" && useCluster) {
 		}
 		try {
 			var server = http.createServer(serverOptions, function (req, res) { serverRequest(req, res); }).listen(webServerAddress);
-			console.log("WEB SERVER: " + webServerAddress);
+            consoleLog("WEB SERVER: " + webServerAddress);
 		} catch (e) {
-			console.log("FAIL WEB SERVER: " + webServerAddress);
+            consoleLog("FAIL WEB SERVER: " + webServerAddress);
 		}
 	}
 	for (var domain in settings.config.LOCAL.redirect) {
@@ -225,9 +228,9 @@ if (configName == "LOCAL" && useCluster) {
 		}
 		try {
 			var server = http.createServer(serverOptions, function (req, res) { serverRequest(req, res); }).listen(webServerAddress);
-			console.log("REDIRECT: " + webServerAddress);
+            consoleLog("REDIRECT: " + webServerAddress);
 		} catch (e) {
-			console.log("FAIL REDIRECT: " + webServerAddress);
+            consoleLog("FAIL REDIRECT: " + webServerAddress);
 		}
 	}
 } else {
