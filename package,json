@@ -16,10 +16,11 @@
         "node-uuid": "~1.4.1",
         "node-xml": "~1.0.2"
     },
-    "devDependencies": {},
+    "devDependencies": {
+    },
     "scripts": {
         "start": "node server.js",
-        "engines":{"node": "0.10.x || 0.8.x"},
+        "engines":{"node": "0.10.x || 0.8.x"}
     },
     "repository": {
         "type": "git",

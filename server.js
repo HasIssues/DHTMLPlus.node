@@ -7,7 +7,7 @@ var content = require("./presenter.js");
 var serverOptions = { };
 
 //-- vars
-var configName = "LOCAL";
+var configName = "";
 var numCPUs = os.cpus().length;
 var machineName = os.hostname().toUpperCase();
 var port = 80;
@@ -22,23 +22,25 @@ var consoleLog = function (message, force) {
 	console.log(message);
 };
 
+//-- get cmd line overrides
+process.argv.forEach(function (val, index, array) {
+    if (val.indexOf("=") > 0) {
+        var param = val.split("=");
+        try {
+            if (param[0].toLowerCase() === "env") { configName = param[1].toUpperCase(); }
+        } catch (e) { }
+    }
+});
+
 //-- are we in Azure or IIS
-if (process.env.PORT != undefined) {
+if (process.env.PORT != undefined && configName == "") {
 	http = require("http");
 	azure = require("azure");
 	configName = "AZURE";
 	port = process.env.PORT || 1337;
 	useCloudData = true;
 } else {
-	process.argv.forEach(function(val, index, array) {
-		if (val.indexOf("=") > 0) {
-			var param = val.split("=");
-			try { 
-				if (param[0].toLowerCase() === "env") { configName = param[1].toUpperCase(); }
-			} catch (e) {}
-		}
-	});	
-	
+    if (configName == "") { configName = "LOCAL"; }
 	local = require("./local.js");
 	//-- these are set in local.js
 	port = local.localKeys["port"];

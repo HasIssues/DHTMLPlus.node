@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ec752cd5-0b57-4510-9fac-41fc785fb0aa}</ProjectGuid>
+    <ProjectHome />
+    <ProjectView>ShowAllFiles</ProjectView>
+    <StartupFile>server.js</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <NodeExeArguments>
+    </NodeExeArguments>
+    <StartWebBrowser>False</StartWebBrowser>
+    <ScriptArguments>env=preview</ScriptArguments>
+    <NodejsPort>80</NodejsPort>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="robots.txt" />
+    <Content Include="DHTMLPlus-content-edit.css" />
+    <Content Include="movies.json" />
+    <Content Include="README.md" />
+    <Compile Include="angularJS-site.js" />
+    <Compile Include="books.js" />
+    <Compile Include="config.js" />
+    <Compile Include="content-management.js" />
+    <Compile Include="data-services.js" />
+    <Compile Include="DHTMLPlus-content-edit.js" />
+    <Compile Include="local.js" />
+    <Compile Include="movies.js" />
+    <Compile Include="presenter.js" />
+    <Compile Include="server.js" />
+    <Compile Include="service.js" />
+    <Compile Include="static-site.js" />
+    <Compile Include="template-data-merge.js" />
+    <Compile Include="template-push-to-blob.js" />
+    <Compile Include="tv.js" />
+    <Compile Include="video-hasissues.js" />
+    <Compile Include="video-index.js" />
+    <Compile Include="video-stream.js" />
+    <Content Include="preview\emoticon.htm" />
+    <Content Include="preview\basicstop.png" />
+    <Content Include="preview\bold.png" />
+    <Content Include="preview\closedocs.png" />
+    <Content Include="preview\delete.png" />
+    <Content Include="preview\emoticon - Copy.png" />
+    <Content Include="preview\emoticon.png" />
+    <Content Include="preview\gallery.png" />
+    <Content Include="preview\grad-bg.png" />
+    <Content Include="preview\html.png" />
+    <Content Include="preview\hyperlinkdialog.png" />
+    <Content Include="preview\insert-above.png" />
+    <Content Include="preview\insert-below.png" />
+    <Content Include="preview\italic.png" />
+    <Content Include="preview\lc_closedoc.png" />
+    <Content Include="preview\lc_controlproperties.png" />
+    <Content Include="preview\paste - Copy.png" />
+    <Content Include="preview\paste.png" />
+    <Content Include="preview\pm-cancel.png" />
+    <Content Include="preview\pm-save.png" />
+    <Content Include="preview\properties.png" />
+    <Content Include="preview\save.png" />
+    <Content Include="preview\saveas.png" />
+    <Content Include="preview\start-button-hover.png" />
+    <Content Include="preview\start-button.png" />
+    <Content Include="preview\underline.png" />
+    <Content Include="preview\angry.gif" />
+    <Content Include="preview\applause.gif" />
+    <Content Include="preview\at-wits-end.gif" />
+    <Content Include="preview\battting-eyelashes.gif" />
+    <Content Include="preview\big-grin.gif" />
+    <Content Include="preview\big-hug.gif" />
+    <Content Include="preview\blushing.gif" />
+    <Content Include="preview\broken-heart.gif" />
+    <Content Include="preview\call-me.gif" />
+    <Content Include="preview\clown.gif" />
+    <Content Include="preview\confused.gif" />
+    <Content Include="preview\cool.gif" />
+    <Content Include="preview\cowboy.gif" />
+    <Content Include="preview\crying.gif" />
+    <Content Include="preview\day-dreaming.gif" />
+    <Content Include="preview\devil.gif" />
+    <Content Include="preview\doh.gif" />
+    <Content Include="preview\dont-tell-anyone.gif" />
+    <Content Include="preview\drooling.gif" />
+    <Content Include="preview\happy.gif" />
+    <Content Include="preview\hurry-up.gif" />
+    <Content Include="preview\hypnotized.gif" />
+    <Content Include="preview\i-dont-want-to-see.gif" />
+    <Content Include="preview\it-wasnt-me.gif" />
+    <Content Include="preview\kiss.gif" />
+    <Content Include="preview\laughing.gif" />
+    <Content Include="preview\liar.gif" />
+    <Content Include="preview\loser.gif" />
+    <Content Include="preview\love-struck.gif" />
+    <Content Include="preview\nail-biting.gif" />
+    <Content Include="preview\no-talking.gif" />
+    <Content Include="preview\on-the-phone.gif" />
+    <Content Include="preview\party.gif" />
+    <Content Include="preview\phbbbbt.gif" />
+    <Content Include="preview\pirate.gif" />
+    <Content Include="preview\raised-eyebrows.gif" />
+    <Content Include="preview\rock-on.gif" />
+    <Content Include="preview\rolling-eyes.gif" />
+    <Content Include="preview\rolling-on-the-floor-laughing.gif" />
+    <Content Include="preview\sad.gif" />
+    <Content Include="preview\sick.gif" />
+    <Content Include="preview\sigh.gif" />
+    <Content Include="preview\silly.gif" />
+    <Content Include="preview\sleepy.gif" />
+    <Content Include="preview\smug.gif" />
+    <Content Include="preview\straight-face.gif" />
+    <Content Include="preview\surprise.gif" />
+    <Content Include="preview\talk-to-the-hand.gif" />
+    <Content Include="preview\thinking.gif" />
+    <Content Include="preview\thumbs-down.gif" />
+    <Content Include="preview\thumbs-up.gif" />
+    <Content Include="preview\time-out.gif" />
+    <Content Include="preview\tongue.gif" />
+    <Content Include="preview\waiting.gif" />
+    <Content Include="preview\wave.gif" />
+    <Content Include="preview\whew.gif" />
+    <Content Include="preview\winking.gif" />
+    <Content Include="preview\worried.gif" />
+    <Content Include="preview\yawn.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="preview" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
