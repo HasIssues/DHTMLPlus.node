@@ -43,6 +43,17 @@ exports.presenter = function (req, res, domain, settings, useCloudData, configNa
         if (requestURL.endsWith("deploy=true")) { path = {"params" : {"deploy" : true } }; }
         var pub = require("./template-push-to-blob.js");
         pub.publishTemplates(req, res, path, domain, settings, configName);
+    } else if (requestURL.startsWith("/video-hasissues")) {
+        var videoHasIssues = require("./video-hasissues.js");
+        if (requestURL.startsWith("/video-hasissues/get-list")) {
+            videoHasIssues.getList(req, res, domain, settings, useCloudData, configName, userName, local);
+        } else if (requestURL.startsWith("/video-hasissues/update-database")) {
+            videoHasIssues.updateDatabase(req, res, domain, settings, useCloudData, configName, userName, local);
+        } else if (requestURL.startsWith("/video-hasissues/sort-database")) {
+            videoHasIssues.sortDatabase(req, res, domain, settings, useCloudData, configName, userName, local);
+        } else if (requestURL.startsWith("/video-hasissues/get-movie")) {
+
+        }
 	} else {
         if (settings.endpoint[domain].type == "DHTMLPlus") {
             var template = require('./template-data-merge.js');

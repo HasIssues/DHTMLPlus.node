@@ -17,6 +17,11 @@ var useHttpSys = false;
 var clusterForks = 2;
 var siteAuth = null;
 
+//-- messaging
+var consoleLog = function (message, force) {
+	console.log(message);
+};
+
 //-- are we in Azure or IIS
 if (process.env.PORT != undefined) {
 	http = require("http");
@@ -25,6 +30,15 @@ if (process.env.PORT != undefined) {
 	port = process.env.PORT || 1337;
 	useCloudData = true;
 } else {
+	process.argv.forEach(function(val, index, array) {
+		if (val.indexOf("=") > 0) {
+			var param = val.split("=");
+			try { 
+				if (param[0].toLowerCase() === "env") { configName = param[1].toUpperCase(); }
+			} catch (e) {}
+		}
+	});	
+	
 	local = require("./local.js");
 	//-- these are set in local.js
 	port = local.localKeys["port"];
@@ -34,13 +48,43 @@ if (process.env.PORT != undefined) {
 	clusterForks = local.localKeys["clusterForks"] != null ? local.localKeys["clusterForks"] : numCPUs;
 	if (useHttpSys) {
 		//-- uses native http.sys on windows only
-		console.log("Using Native Mode HTTP.sys");
+		consoleLog("Using Native Mode HTTP.sys");
 		serverOptions = { "HTTPSYS_CACHE_DURATION": 0, "HTTPSYS_BUFFER_SIZE": 16384, "HTTPSYS_REQUEST_QUEUE_LENGTH": 10000, "HTTPSYS_PENDING_READ_COUNT": 5 };
 		http = require("httpsys").http();
 	} else {
 		http = require("http");
 	}
-}
+};
+
+var serverInfo = function() {
+	consoleLog("");
+	consoleLog("\x1b[36mMachine " + os.hostname().toUpperCase()  + " with " + numCPUs + " CPUs. In cluster Mode.\x1b[0m", true);
+	//consoleLog("\x1b[36mRunning in " + (serverSettings.ssl ? "Secure SSL" : "HTTP Only") + " mode.\x1b[0m", true);
+	consoleLog("\n\x1b[42m                             \x1b[0m");
+	consoleLog("\x1b[32m Environment....: \x1b[0m" + configName);
+	//consoleLog("\x1b[32m HTTP2..........: \x1b[0m" + serverSettings.http2);
+	//consoleLog("\x1b[32m Port...........: \x1b[0m" + serverSettings.port);
+	consoleLog("\x1b[32m Debug Port.....: \x1b[0m" + process.debugPort);
+	//consoleLog("\x1b[32m Cluster........: \x1b[0m" + serverSettings.cluster);
+	//consoleLog("\x1b[32m Listeners......: \x1b[0m" + serverSettings.listeners);
+	//consoleLog("\x1b[32m SSL............: \x1b[0m" + serverSettings.ssl);
+	//consoleLog("\x1b[32m Nocache........: \x1b[0m" + serverSettings.nocache);
+	//consoleLog("\x1b[32m Compress.......: \x1b[0m" + serverSettings.compress);
+	//consoleLog("\x1b[32m Gzip...........: \x1b[0m" + serverSettings.gzip);
+	//consoleLog("\x1b[32m Dev............: \x1b[0m" + serverSettings.dev);
+	//consoleLog("\x1b[32m cacheBuster....: \x1b[0m" + serverSettings.cacheBuster);
+	consoleLog("\x1b[33m Node/io.js.....: \x1b[0m" + process.versions.node);
+	consoleLog("\x1b[33m Http Parser....: \x1b[0m" + process.versions.http_parser);
+	consoleLog("\x1b[33m V8.............: \x1b[0m" + process.versions.v8);
+	consoleLog("\x1b[33m UV.............: \x1b[0m" + process.versions.uv);
+	consoleLog("\x1b[33m zlib...........: \x1b[0m" + process.versions.zlib);
+	consoleLog("\x1b[33m Ares...........: \x1b[0m" + process.versions.ares);
+	consoleLog("\x1b[33m Modules........: \x1b[0m" + process.versions.modules);
+	consoleLog("\x1b[33m OpenSSL........: \x1b[0m" + process.versions.openssl);
+	consoleLog("\x1b[33m Arch...........: \x1b[0m" + process.arch);
+	consoleLog("\x1b[33m Platform.......: \x1b[0m" + os.platform());
+	consoleLog("\x1b[42m                             \x1b[0m\n");		
+};
 
 //-- HTTP Server for redirect
 var serverRequest = function (req, res) {
@@ -62,7 +106,7 @@ var serverRequest = function (req, res) {
 				subDomain = requestHostArray[0];
 			}
 		} else {
-			console.log("Unable to process: " + requestHost);
+			consoleLog("Unable to process: " + requestHost);
 		}
 	}
 	//-- now lets respond to a request
@@ -81,7 +125,7 @@ var serverRequest = function (req, res) {
 	if (redirect) {
 		//-- process redirect
 		var redirectTO = settings.config[configName].redirect[domain].directTo + "." + domain;
-		console.log("Redirect " + requestHost + " to " + redirectTO);
+		consoleLog("Redirect " + requestHost + " to " + redirectTO);
 		res.writeHead(302, { 'Content-Type': 'text/html', 'Location': 'http://' + redirectTO + '/' });
 		res.end('<a href="http://' + redirectTO + '/">Redirecting to ' + redirectTO + '</a>');
 	} else if (hosted) {
@@ -95,7 +139,7 @@ var serverRequest = function (req, res) {
                 var options = { realm: domain, file: "./" + securityType + "-htpasswd" };
                 var authConfig = (securityType == 'basic' ? auth.basic(options) : auth.digest(options));
                 auth.connect(authConfig)(req, res, function() {
-                    console.log("SECURITY: " + req.user + " " + securityType + " security for " + domain);
+                    consoleLog("SECURITY: " + req.user + " " + securityType + " security for " + domain);
                     try {
                         content.presenter(req, res, domain, settings.config[configName], useCloudData, configName, req.user, local);
                     } catch (e) {
@@ -118,9 +162,9 @@ var serverRequest = function (req, res) {
 		//-- not processed
 		res.end();
 		if (subDomain != "") {
-			console.log("NOT HOSTED: " + subDomain + "." + domain + " REFERER: " + requestReferer);
+			consoleLog("NOT HOSTED: " + subDomain + "." + domain + " REFERER: " + requestReferer);
 		} else {
-			console.log("NOT HOSTED: " + domain + " REFERER: " + requestReferer);
+			consoleLog("NOT HOSTED: " + domain + " REFERER: " + requestReferer);
 		}
 	}
 };
@@ -129,8 +173,8 @@ var serverRequest = function (req, res) {
 if (configName == "LOCAL" && useCluster) {
 	var cluster = require("cluster");
 	if (cluster.isMaster) {
-		console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
-		console.log("Running Node Version " + process.versions.node);
+		serverInfo();
+		// start clusters
 		for (var i = 1; i <= clusterForks; i++) { cluster.fork(); }
 		cluster.on("exit", function(worker, code, signal) { var exitCode = worker.process.exitCode; console.log("worker " + worker.process.pid + " died (" + exitCode + "). restarting..."); cluster.fork(); });
 		cluster.on('listening', function(worker, address) { console.log("Worker " + worker.process.pid + " listening  on " + address.port); });
@@ -139,8 +183,7 @@ if (configName == "LOCAL" && useCluster) {
 		var server = http.createServer(function (req, res) { serverRequest(req, res); }).listen(port);
 	}
 } else if (configName == "LOCAL" && !useCluster && useHttpSys) {
-	console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
-	console.log("Running Node Version " + process.versions.node);
+	serverInfo();
 	for (var domain in settings.config.LOCAL.endpoint) {
 		var webServerAddress = "http://";
 		if (settings.config.LOCAL.endpoint[domain].subDomain == "") {
@@ -171,7 +214,5 @@ if (configName == "LOCAL" && useCluster) {
 	}
 } else {
 	var server = http.createServer(function (req, res) { serverRequest(req, res); }).listen(port);
-	console.log("Machine " + machineName  + " with " + numCPUs + " CPUs.");
-	console.log("Running Node Version " + process.versions.node);
-	console.log("Listing on port " + port);
+	serverInfo();
 }
