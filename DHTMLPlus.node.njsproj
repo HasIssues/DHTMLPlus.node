@@ -21,6 +21,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="iisnode.yml" />
+    <Content Include="package,json" />
     <Content Include="robots.txt" />
     <Content Include="DHTMLPlus-content-edit.css" />
     <Content Include="movies.json" />
@@ -128,6 +131,7 @@
     <Content Include="preview\winking.gif" />
     <Content Include="preview\worried.gif" />
     <Content Include="preview\yawn.gif" />
+    <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="preview" />

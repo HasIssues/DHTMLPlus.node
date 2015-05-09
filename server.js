@@ -58,16 +58,19 @@ if (process.env.PORT != undefined && configName == "") {
 	}
 };
 
-var serverInfo = function() {
-	consoleLog("");
+var serverInfo = function () {
+    var fs = require("fs");
+    stats = fs.lstatSync(settings.config[configName].templates.path);
+    var websitesInstalled = false;
+    if (stats.isDirectory()) { websitesInstalled = true; }    
+    consoleLog("");
 	consoleLog("\x1b[36mMachine " + os.hostname().toUpperCase()  + " with " + numCPUs + " CPUs. In cluster Mode.\x1b[0m", true);
 	//consoleLog("\x1b[36mRunning in " + (serverSettings.ssl ? "Secure SSL" : "HTTP Only") + " mode.\x1b[0m", true);
-	consoleLog("\n\x1b[42m                             \x1b[0m");
-	consoleLog("\x1b[32m Environment....: \x1b[0m" + configName);
+	consoleLog("\n\x1b[1;42m DHTMLPlus.node              \x1b[0m");
+	consoleLog("\x1b[92m Environment....: \x1b[0m" + configName);
 	//consoleLog("\x1b[32m HTTP2..........: \x1b[0m" + serverSettings.http2);
-	consoleLog("\x1b[32m Port...........: \x1b[0m" + port);
-	consoleLog("\x1b[32m Debug Port.....: \x1b[0m" + process.debugPort);
-	//consoleLog("\x1b[32m Cluster........: \x1b[0m" + serverSettings.cluster);
+	consoleLog("\x1b[92m Port...........: \x1b[0m" + port);
+	consoleLog("\x1b[92m Debug Port.....: \x1b[0m" + process.debugPort);
 	//consoleLog("\x1b[32m Listeners......: \x1b[0m" + serverSettings.listeners);
 	//consoleLog("\x1b[32m SSL............: \x1b[0m" + serverSettings.ssl);
 	//consoleLog("\x1b[32m Nocache........: \x1b[0m" + serverSettings.nocache);
@@ -75,23 +78,30 @@ var serverInfo = function() {
 	//consoleLog("\x1b[32m Gzip...........: \x1b[0m" + serverSettings.gzip);
 	//consoleLog("\x1b[32m Dev............: \x1b[0m" + serverSettings.dev);
     //consoleLog("\x1b[32m cacheBuster....: \x1b[0m" + serverSettings.cacheBuster);
+    consoleLog("\x1b[92m useCloudData...: \x1b[0m" + useCloudData);
+    consoleLog("\x1b[92m useCluster.....: \x1b[0m" + useCluster);
+    consoleLog("\x1b[92m useHttpSys.....: \x1b[0m" + useHttpSys);
+    consoleLog("\x1b[92m clusterForks...: \x1b[0m" + clusterForks);
     
-    consoleLog("\x1b[32m useCloudData...: \x1b[0m" + useCloudData);
-    consoleLog("\x1b[32m useCluster.....: \x1b[0m" + useCluster);
-    consoleLog("\x1b[32m useHttpSys.....: \x1b[0m" + useHttpSys);
-    consoleLog("\x1b[32m clusterForks...: \x1b[0m" + clusterForks);
+    consoleLog("\x1b[1;43m node.js/io.js               \x1b[0m");
+    consoleLog("\x1b[93m Node/io.js.....: \x1b[0m" + process.versions.node);
+	consoleLog("\x1b[93m Http Parser....: \x1b[0m" + process.versions.http_parser);
+	consoleLog("\x1b[93m V8.............: \x1b[0m" + process.versions.v8);
+	consoleLog("\x1b[93m UV.............: \x1b[0m" + process.versions.uv);
+	consoleLog("\x1b[93m zlib...........: \x1b[0m" + process.versions.zlib);
+	consoleLog("\x1b[93m Ares...........: \x1b[0m" + process.versions.ares);
+	consoleLog("\x1b[93m Modules........: \x1b[0m" + process.versions.modules);
+	consoleLog("\x1b[93m OpenSSL........: \x1b[0m" + process.versions.openssl);
+	consoleLog("\x1b[93m Arch...........: \x1b[0m" + process.arch);
+	consoleLog("\x1b[93m Platform.......: \x1b[0m" + os.platform());
 
-	consoleLog("\x1b[33m Node/io.js.....: \x1b[0m" + process.versions.node);
-	consoleLog("\x1b[33m Http Parser....: \x1b[0m" + process.versions.http_parser);
-	consoleLog("\x1b[33m V8.............: \x1b[0m" + process.versions.v8);
-	consoleLog("\x1b[33m UV.............: \x1b[0m" + process.versions.uv);
-	consoleLog("\x1b[33m zlib...........: \x1b[0m" + process.versions.zlib);
-	consoleLog("\x1b[33m Ares...........: \x1b[0m" + process.versions.ares);
-	consoleLog("\x1b[33m Modules........: \x1b[0m" + process.versions.modules);
-	consoleLog("\x1b[33m OpenSSL........: \x1b[0m" + process.versions.openssl);
-	consoleLog("\x1b[33m Arch...........: \x1b[0m" + process.arch);
-	consoleLog("\x1b[33m Platform.......: \x1b[0m" + os.platform());
-	consoleLog("\x1b[42m                             \x1b[0m\n");		
+    consoleLog("\x1b[1;44m WebSites                    \x1b[0m");
+    consoleLog("\x1b[94m WebSites.......: \x1b[0m" + settings.config[configName].templates.path);
+    consoleLog("\x1b[94m Installed......: \x1b[0m" + websitesInstalled);
+
+    consoleLog("\x1b[1;45m Machine Settings            \x1b[0m");
+    consoleLog("\x1b[95m................: \x1b[0m" + "--");
+
 };
 
 //-- HTTP Server for redirect
