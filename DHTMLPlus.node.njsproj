@@ -35,7 +35,6 @@
     <Compile Include="content-management.js" />
     <Compile Include="data-services.js" />
     <Compile Include="DHTMLPlus-content-edit.js" />
-    <Compile Include="local.js" />
     <Compile Include="movies.js" />
     <Compile Include="presenter.js" />
     <Compile Include="server.js" />

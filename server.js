@@ -19,6 +19,7 @@ var useHttpSys = false;
 var clusterForks = 2;
 var siteAuth = null;
 var websitesInstalled = false;
+var usingLocalSettings = false;
 
 //-- messaging
 var consoleLog = function (message, force) {
@@ -49,8 +50,9 @@ if (process.env.PORT != undefined) {
 } else {
     var fs = require("fs");
     if (fs.existsSync(settings.config[configName].templates.path)) { websitesInstalled = true; }
-    if (fs.existsSync("../DHTMLPlus.settings/")) {
-        local = require("../DHTMLPlus.settings/local.js");
+    if (fs.existsSync("../WebSites/")) {
+        local = require("../WebSites/local.js");
+        usingLocalSettings = true;
         useCloudData = local.localKeys["useCloudData"];
         useCluster = local.localKeys["useCluster"];
         useHttpSys = local.localKeys["useHttpSys"];
@@ -103,7 +105,7 @@ var serverInfo = function () {
     consoleLog("\x1b[94m WebSites.......: \x1b[0m" + settings.config[configName].templates.path);
     consoleLog("\x1b[94m Installed......: \x1b[0m" + websitesInstalled);
     consoleLog("\x1b[1;45m Machine Settings            \x1b[0m");
-    consoleLog("\x1b[95m................: \x1b[0m" + "--");
+    consoleLog("\x1b[95m local.js.......: \x1b[0m" + usingLocalSettings);
 
 };
 
