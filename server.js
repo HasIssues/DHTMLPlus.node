@@ -41,7 +41,7 @@ if (process.argv.length > 2) {
 }
 
 //-- are we in Azure or IIS
-if (process.env.PORT != undefined) {
+if (process.env.PORT != undefined && configName == "") {
 	http = require("http");
 	azure = require("azure");
     if (configName == "") { configName = "AZURE"; }
@@ -75,6 +75,7 @@ var serverInfo = function () {
     consoleLog("\n\x1b[1;42m DHTMLPlus.node              \x1b[0m");
 	consoleLog("\x1b[92m Environment....: \x1b[0m" + configName);
     consoleLog("\x1b[92m Start Path.....: \x1b[0m" + startup);
+    consoleLog("\x1b[92m Execute Path...: \x1b[0m" + process.cwd());
 	//consoleLog("\x1b[32m HTTP2..........: \x1b[0m" + serverSettings.http2);
 	consoleLog("\x1b[92m Port...........: \x1b[0m" + port);
 	consoleLog("\x1b[92m Debug Port.....: \x1b[0m" + process.debugPort);

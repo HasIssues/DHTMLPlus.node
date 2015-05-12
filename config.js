@@ -1,3 +1,9 @@
+/*
+ * This file should be modified to mirror you site setup.
+ * Your websites should be in ../WebSites/
+ * 
+*/
+
 exports.config = {
 	"PREVIEW": {
         templates: {path: "../WebSites/"},
