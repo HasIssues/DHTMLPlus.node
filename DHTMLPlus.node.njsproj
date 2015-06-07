@@ -12,8 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <NodeExeArguments>
-    </NodeExeArguments>
+    <NodeExeArguments>server.js</NodeExeArguments>
     <StartWebBrowser>False</StartWebBrowser>
     <ScriptArguments>env=preview</ScriptArguments>
     <NodejsPort>80</NodejsPort>
@@ -27,9 +26,9 @@
     <Content Include="package,json" />
     <Content Include="robots.txt" />
     <Content Include="DHTMLPlus-content-edit.css" />
-    <Content Include="movies.json" />
     <Content Include="README.md" />
     <Compile Include="angularJS-site.js" />
+    <Compile Include="api.js" />
     <Compile Include="books.js" />
     <Compile Include="config.js" />
     <Compile Include="content-management.js" />
@@ -131,6 +130,7 @@
     <Content Include="preview\winking.gif" />
     <Content Include="preview\worried.gif" />
     <Content Include="preview\yawn.gif" />
+    <Content Include="setup.bat" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

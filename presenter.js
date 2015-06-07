@@ -64,6 +64,9 @@ exports.presenter = function (req, res, domain, settings, useCloudData, configNa
         } else if (settings.endpoint[domain].type == "static") {
             var template = require('./static-site.js');
             template.responseFile(req, res, domain, settings, useCloudData, configName, userName, local);
+        } else if (settings.endpoint[domain].type == "API") {
+            var template = require('./api.js');
+            template.returnJSON(req, res, domain, settings, useCloudData, configName, userName, local);
         } else {
             res.writeHead(404, { 'Content-Type': "text/html", 'error': 'File Not Found.' });
             res.end("OPPS");

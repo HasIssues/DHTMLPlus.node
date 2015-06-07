@@ -159,3 +159,17 @@ Publishing Site Templates
 Publish only works from your LOCAL node server.
 * Create a Azure Blob Storage folder with the name of your site. Example: `hasissues-com`.
 * Browse to preview.your-site.com/publish.htm, this will publish your site to your blob storage account.
+
+Create passwords
+-----------------
+Creating basic auth user.
+```javascript
+npm install -g htdigest
+htpasswd basic-htpasswd username
+````
+
+Creating a digest auth user
+```javascript
+npm install -g htdigest
+htdigest digest-htpasswd realm username
+````
